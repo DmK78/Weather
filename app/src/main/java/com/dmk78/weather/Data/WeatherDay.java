@@ -2,10 +2,12 @@ package com.dmk78.weather.Data;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class WeatherDay {
 
     private CurrentWeatherMain main;
-    private Weather weather;
+    private List<Weather> weather;
     private CurrentWeatherWind wind;
 
     public CurrentWeatherMain getMain() {
@@ -16,11 +18,11 @@ public class WeatherDay {
         this.main = main;
     }
 
-    public Weather getWeather() {
+    public List<Weather> getWeather() {
         return weather;
     }
 
-    public void setWeather(Weather weather) {
+    public void setWeather(List<Weather> weather) {
         this.weather = weather;
     }
 

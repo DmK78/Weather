@@ -29,7 +29,7 @@ public interface JsonPlaceHolderApi {
             @Query("lang") String lang
     );
 
-    @GET("forecast")
+    @GET("forecast/list")
     Call<List<WeatherDay>> getDaysWeather(
             @Query("q") String cityName,
             @Query("appid") String apiKey,

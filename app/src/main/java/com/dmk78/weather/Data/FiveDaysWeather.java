@@ -1,6 +1,6 @@
 package com.dmk78.weather.Data;
 
-import android.support.annotation.ArrayRes;
+
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
