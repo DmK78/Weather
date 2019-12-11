@@ -5,11 +5,14 @@ import android.os.Bundle;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,9 +34,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class WeatherFragment extends Fragment {
-    public static String ERROR_CODE = "errorCode";
+
     private TextView textViewCity;
-    private String url = "http://api.openweathermap.org/data/2.5/";
+
     private String key = "8f99535cdea446be868e707ba8062fc0";
     private String units = "metric";
     private String lang = "ru";
@@ -44,9 +47,10 @@ public class WeatherFragment extends Fragment {
     public DaysAdapter adapter;
     private List<Day> days;
     private List<Day> convertedDays;
-    private ImageView imageViewCurrentTemp;
+    private ImageView imageViewCurrentTemp, imageViewWind;
     private EditText editTextEnterCity;
-    private TextView textViewTemp, textViewMinTemp;
+    private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
+    textViewWindSpeed, textViewWindDirection;
     private CurrentWeather currentWeather;
     private Button buttonFindCity;
     private SharedPreferences sharedPreferences;
@@ -61,6 +65,11 @@ public class WeatherFragment extends Fragment {
         textViewCity = view.findViewById(R.id.textViewCurrentCity);
         textViewTemp = view.findViewById(R.id.textViewCurrentTemp);
         textViewMinTemp = view.findViewById(R.id.textViewCurrentTempMin);
+        textViewPressure=view.findViewById(R.id.textViewPressure);
+        textViewWeatherDesc=view.findViewById(R.id.textViewWeatherDesc);
+        textViewWindSpeed=view.findViewById(R.id.textViewWindSpeed);
+        textViewWindDirection=view.findViewById(R.id.textViewWindDirection);
+        imageViewWind=view.findViewById(R.id.imageViewWind);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         currentCity = sharedPreferences.getString(APP_PREFERENCES_CITY, "");
         if (currentCity != "") {
@@ -78,8 +87,20 @@ public class WeatherFragment extends Fragment {
                 }
             }
         });
+        editTextEnterCity.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
 
-        getAllDays("Екатеринбург");
+                if(keyCode==KeyEvent.KEYCODE_ENTER){
+                    updateCurrentWeather(editTextEnterCity.getText().toString());
+                    savePreferences(APP_PREFERENCES_CITY, editTextEnterCity.getText().toString());
+                }
+
+                return false;
+            }
+        });
+
+        getAllDays("Dubai");
         recycler = view.findViewById(R.id.resyclerDays);
         this.recycler.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
@@ -93,13 +114,9 @@ public class WeatherFragment extends Fragment {
                     @Override
                     public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                         if (response.isSuccessful()) {
-                            CurrentWeather currentWeather = response.body();
-                            textViewCity.setText(currentWeather.getCityName());
-                            textViewTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getTemp())));
-                            textViewMinTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getMinTemp())));
-                            imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
+                            currentWeather = response.body();
+                            renderCurrentWeather();
                             getAllDays(currentWeather.getCityName());
-
                         }
                     }
 
@@ -108,6 +125,18 @@ public class WeatherFragment extends Fragment {
 
                     }
                 });
+    }
+
+    private void renderCurrentWeather() {
+        textViewCity.setText(currentWeather.getCityName());
+        textViewTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getTemp()))+" C");
+        textViewMinTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getMinTemp()))+" C");
+        textViewPressure.setText(String.valueOf(currentWeather.getMain().getPressure()));
+        textViewWeatherDesc.setText(currentWeather.getWeather().get(0).getDescription());
+        textViewWindSpeed.setText(String.valueOf(currentWeather.getWind().getSpeed())+"m/s");
+        textViewWindDirection.setText(String.valueOf(currentWeather.getWind().getDegree())+"degree");
+        imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
+        imageViewWind.animate().rotation(currentWeather.getWind().getDegree()).setDuration(1000).start();
     }
 
 
