@@ -2,7 +2,7 @@ package com.dmk78.weather.Data;
 
 import com.google.gson.annotations.SerializedName;
 
-public class CurrentWeatherMain {
+public class Main {
 
     private float temp;
 

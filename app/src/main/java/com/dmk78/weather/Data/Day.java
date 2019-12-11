@@ -1,20 +1,19 @@
 package com.dmk78.weather.Data;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
-public class WeatherDay {
+public class Day {
 
-    private CurrentWeatherMain main;
+    private Main main;
     private List<Weather> weather;
-    private CurrentWeatherWind wind;
+    private Wind wind;
+    private String dt_txt;
 
-    public CurrentWeatherMain getMain() {
+    public Main getMain() {
         return main;
     }
 
-    public void setMain(CurrentWeatherMain main) {
+    public void setMain(Main main) {
         this.main = main;
     }
 
@@ -22,15 +21,19 @@ public class WeatherDay {
         return weather;
     }
 
+    public String getDt_txt() {
+        return dt_txt;
+    }
+
     public void setWeather(List<Weather> weather) {
         this.weather = weather;
     }
 
-    public CurrentWeatherWind getWind() {
+    public Wind getWind() {
         return wind;
     }
 
-    public void setWind(CurrentWeatherWind wind) {
+    public void setWind(Wind wind) {
         this.wind = wind;
     }
 }

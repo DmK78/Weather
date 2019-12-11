@@ -4,49 +4,86 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/holo_green_dark"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/buttonOneDay"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/resyclerDays"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-
-        android:text="Button1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/buttonFiveDays"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Button5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ScrollView
-        android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonFiveDays">
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+    <EditText
+        android:id="@+id/editTextEnterCity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="введите город"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toStartOf="@+id/buttonFind"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/textViewCity"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="49dp"
-                android:background="@android:color/holo_orange_dark"
-                android:gravity="center_horizontal|center_vertical"
-                android:text="TextView"
-                android:textSize="24sp" />
-        </LinearLayout>
-    </ScrollView>
+    <TextView
+        android:id="@+id/textViewCurrentCity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/imageViewCurrent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextEnterCity" />
+
+    <ImageView
+        android:id="@+id/imageViewCurrent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextEnterCity"
+        app:srcCompat="@drawable/i01d" />
+
+    <TextView
+        android:id="@+id/textViewCurrentTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="TextView"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/imageViewCurrent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCurrentCity" />
+
+    <TextView
+        android:id="@+id/textViewCurrentTempMin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="TextView"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/imageViewCurrent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCurrentTemp" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="мин:"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewCurrentTempMin"
+        app:layout_constraintEnd_toStartOf="@+id/textViewCurrentTempMin" />
+
+    <Button
+        android:id="@+id/buttonFind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

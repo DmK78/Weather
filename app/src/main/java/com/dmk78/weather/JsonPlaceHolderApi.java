@@ -2,7 +2,7 @@ package com.dmk78.weather;
 
 import com.dmk78.weather.Data.CurrentWeather;
 import com.dmk78.weather.Data.FiveDaysWeather;
-import com.dmk78.weather.Data.WeatherDay;
+import com.dmk78.weather.Data.Day;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public interface JsonPlaceHolderApi {
     );
 
     @GET("forecast/list")
-    Call<List<WeatherDay>> getDaysWeather(
+    Call<List<Day>> getDaysWeather(
             @Query("q") String cityName,
             @Query("appid") String apiKey,
             @Query("units") String units,

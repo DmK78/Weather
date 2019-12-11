@@ -2,20 +2,17 @@ package com.dmk78.weather.Data;
 
 
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FiveDaysWeather {
 
     @SerializedName("list")
-    private List<WeatherDay> list = null;
-
+    private List<Day> list = null;
     private City city;
 
-    public List<WeatherDay> getList() {
+    public List<Day> getList() {
         return list;
     }
 
@@ -23,7 +20,7 @@ public class FiveDaysWeather {
         return city;
     }
 
-    public void setList(List<WeatherDay> list) {
+    public void setList(List<Day> list) {
         this.list = list;
     }
 

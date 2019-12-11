@@ -2,21 +2,26 @@ package com.dmk78.weather.Data;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class CurrentWeather {
 
-    private CurrentWeatherMain main;
-
-    private CurrentWeatherWind wind;
+    private Main main;
+    private List<Weather> weather;
+    private Wind wind;
 
     @SerializedName("name")
     private String cityName;
 
+    public List<Weather> getWeather() {
+        return weather;
+    }
 
-    public CurrentWeatherMain getMain() {
+    public Main getMain() {
         return main;
     }
 
-    public CurrentWeatherWind getWind() {
+    public Wind getWind() {
         return wind;
     }
 
