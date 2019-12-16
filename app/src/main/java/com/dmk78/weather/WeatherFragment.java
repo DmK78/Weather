@@ -1,122 +1,225 @@
 package com.dmk78.weather;
 
-import android.content.SharedPreferences;
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dmk78.weather.Data.CurrentWeather;
 import com.dmk78.weather.Data.FiveDaysWeather;
 import com.dmk78.weather.Data.Day;
+import com.dmk78.weather.network.NetworkService;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class WeatherFragment extends Fragment {
+public class WeatherFragment extends Fragment implements LocationListener {
 
     private TextView textViewCity;
-
+    private double mLatitude;
+    private double mLongitude;
     private String key = "8f99535cdea446be868e707ba8062fc0";
     private String units = "metric";
     private String lang = "ru";
-    public static final String MY_SETTINGS = "my_settings";
-    public static final String APP_PREFERENCES_CITY = "city"; // имя кота
+
     NetworkService networkService = NetworkService.getInstance();
     private RecyclerView recycler;
     public DaysAdapter adapter;
     private List<Day> days;
     private List<Day> convertedDays;
-    private ImageView imageViewCurrentTemp, imageViewWind;
+    private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
     private EditText editTextEnterCity;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
-    textViewWindSpeed, textViewWindDirection;
+            textViewWindSpeed, textViewWindDirection;
     private CurrentWeather currentWeather;
     private Button buttonFindCity;
-    private SharedPreferences sharedPreferences;
+    private PlacePreferences placePreferences;
     private String currentCity;
+    private final int REQUEST_LOCATION_PERMISSION = 1;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        currentCity = placePreferences.getPlaceName();
+        if (currentCity != "") {
+            mLatitude = placePreferences.getLat();
+            mLongitude = placePreferences.getLng();
+            getWeatherByCoord(mLatitude, mLongitude);
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
-        imageViewCurrentTemp = view.findViewById(R.id.imageViewCurrent);
-        editTextEnterCity = view.findViewById(R.id.editTextEnterCity);
-        textViewCity = view.findViewById(R.id.textViewCurrentCity);
-        textViewTemp = view.findViewById(R.id.textViewCurrentTemp);
-        textViewMinTemp = view.findViewById(R.id.textViewCurrentTempMin);
-        textViewPressure=view.findViewById(R.id.textViewPressure);
-        textViewWeatherDesc=view.findViewById(R.id.textViewWeatherDesc);
-        textViewWindSpeed=view.findViewById(R.id.textViewWindSpeed);
-        textViewWindDirection=view.findViewById(R.id.textViewWindDirection);
-        imageViewWind=view.findViewById(R.id.imageViewWind);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        currentCity = sharedPreferences.getString(APP_PREFERENCES_CITY, "");
+        bindAllViews(view);
+        placePreferences = new PlacePreferences(getContext());
+        imageViewGetCurrentLocation.setOnClickListener(this::getCoord);
+        currentCity = placePreferences.getPlaceName();
+
         if (currentCity != "") {
-            updateCurrentWeather(currentCity);
+            mLatitude = placePreferences.getLat();
+            mLongitude = placePreferences.getLng();
+            getWeatherByCoord(mLatitude, mLongitude);
+        } else {
+            getCoord(getView());
         }
 
 
-        buttonFindCity = view.findViewById(R.id.buttonFind);
-        buttonFindCity.setOnClickListener(new View.OnClickListener() {
+        Places.initialize(getContext(), getString(R.string.google_maps_key));
+        AutocompleteSupportFragment search = (AutocompleteSupportFragment)
+                this.getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+        search.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
+        search.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onClick(View v) {
-                if (editTextEnterCity.getText().toString() != "") {
-                    updateCurrentWeather(editTextEnterCity.getText().toString());
-                    savePreferences(APP_PREFERENCES_CITY, editTextEnterCity.getText().toString());
-                }
+            public void onPlaceSelected(Place place) {
+                LatLng pos = place.getLatLng();
+                mLatitude = pos.latitude;
+                mLongitude = pos.longitude;
+                currentCity = place.getName();
+                getWeatherByCoord(mLatitude, mLongitude);
+
+
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(WeatherFragment.class.getName(), "An error occurred: " + status);
             }
         });
-        editTextEnterCity.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-
-                if(keyCode==KeyEvent.KEYCODE_ENTER){
-                    updateCurrentWeather(editTextEnterCity.getText().toString());
-                    savePreferences(APP_PREFERENCES_CITY, editTextEnterCity.getText().toString());
-                }
-
-                return false;
-            }
-        });
-
-        getAllDays("Dubai");
-        recycler = view.findViewById(R.id.resyclerDays);
-        this.recycler.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        //getAllDays("Dubai");
+        //recycler = view.findViewById(R.id.resyclerDays);
+        //this.recycler.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
 
         return view;
     }
 
-    private void updateCurrentWeather(final String city) {
-        networkService.getJSONApi().getCurrentWeather(city, key, units, lang)
+    private void checkLocPermissions(){
+
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        }
+
+
+    }
+
+    private void bindAllViews(View view) {
+        imageViewCurrentTemp = view.findViewById(R.id.imageViewCurrent);
+        textViewCity = view.findViewById(R.id.textViewCurrentCity);
+        textViewTemp = view.findViewById(R.id.textViewCurrentTemp);
+        textViewMinTemp = view.findViewById(R.id.textViewCurrentTempMin);
+        textViewPressure = view.findViewById(R.id.textViewPressure);
+        textViewWeatherDesc = view.findViewById(R.id.textViewWeatherDesc);
+        textViewWindSpeed = view.findViewById(R.id.textViewWindSpeed);
+        imageViewGetCurrentLocation = view.findViewById(R.id.imageViewGetLocation);
+        imageViewWind = view.findViewById(R.id.imageViewWind);
+    }
+
+    private void getCoord(View view) {
+        checkLocPermissions();
+        currentCity = "";
+
+        LocationManager lm = (LocationManager) Objects.requireNonNull(getActivity())
+                .getSystemService(Context.LOCATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            }
+        }
+        if (lm != null) {
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, this);
+            if (location != null) {
+                mLatitude = location.getLatitude();
+                mLongitude = location.getLongitude();
+
+                getWeatherByCoord(mLatitude, mLongitude);
+
+            }
+        }
+    }
+
+
+
+    private void getWeatherByCoord(double mLatitude, double mLongitude) {
+        networkService.getJSONApi().getCurrentWeatherByCoord(mLatitude, mLongitude, key, units, lang).enqueue(new Callback<CurrentWeather>() {
+            @Override
+            public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
+                if (response.isSuccessful()) {
+                    currentWeather = response.body();
+                    Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
+                   // if (currentCity == "") {
+                        currentCity = currentWeather.getCityName();
+                    //}
+                    renderCurrentWeather();
+                    savePreferences();
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CurrentWeather> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getWeatherByCityName(final String city) {
+        networkService.getJSONApi().getCurrentWeatherByCity(city, key, units, lang)
                 .enqueue(new Callback<CurrentWeather>() {
                     @Override
                     public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                         if (response.isSuccessful()) {
                             currentWeather = response.body();
+                            currentCity = city;
                             renderCurrentWeather();
-                            getAllDays(currentWeather.getCityName());
+                            savePreferences();
+                            // getAllDays(currentWeather.getCityName());
                         }
                     }
 
@@ -128,13 +231,13 @@ public class WeatherFragment extends Fragment {
     }
 
     private void renderCurrentWeather() {
-        textViewCity.setText(currentWeather.getCityName());
-        textViewTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getTemp()))+" C");
-        textViewMinTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getMinTemp()))+" C");
+        textViewCity.setText(currentCity + ", " + currentWeather.getSys().getCountry());
+        textViewTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getTemp())) + " C");
+        textViewMinTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getMinTemp())) + " C");
         textViewPressure.setText(String.valueOf(currentWeather.getMain().getPressure()));
         textViewWeatherDesc.setText(currentWeather.getWeather().get(0).getDescription());
-        textViewWindSpeed.setText(String.valueOf(currentWeather.getWind().getSpeed())+"m/s");
-        textViewWindDirection.setText(String.valueOf(currentWeather.getWind().getDegree())+"degree");
+        textViewWindSpeed.setText(String.valueOf(currentWeather.getWind().getSpeed()) + "m/s");
+//        textViewWindDirection.setText(String.valueOf(currentWeather.getWind().getDegree())+"degree");
         imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
         imageViewWind.animate().rotation(currentWeather.getWind().getDegree()).setDuration(1000).start();
     }
@@ -174,12 +277,31 @@ public class WeatherFragment extends Fragment {
         recycler.setAdapter(adapter);
     }
 
-    private void savePreferences(String key, String value) {
+    private void savePreferences() {
 
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
-        editor.apply();
+        placePreferences.savePlace(currentCity, mLatitude, mLongitude);
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+        /*mLongitude = location.getLongitude();
+        mLatitude = location.getLatitude();
+        getWeatherByCoord(mLatitude, mLongitude);*/
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }

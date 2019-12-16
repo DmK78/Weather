@@ -1,5 +1,6 @@
 package com.dmk78.weather.Data;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -9,6 +10,7 @@ public class CurrentWeather {
     private Main main;
     private List<Weather> weather;
     private Wind wind;
+    private Sys sys;
 
     @SerializedName("name")
     private String cityName;
@@ -28,4 +30,9 @@ public class CurrentWeather {
     public String getCityName() {
         return cityName;
     }
+
+    public Sys getSys() {
+        return sys;
+    }
+
 }

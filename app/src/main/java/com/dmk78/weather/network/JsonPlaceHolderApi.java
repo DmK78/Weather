@@ -1,4 +1,4 @@
-package com.dmk78.weather;
+package com.dmk78.weather.network;
 
 import com.dmk78.weather.Data.CurrentWeather;
 import com.dmk78.weather.Data.FiveDaysWeather;
@@ -12,10 +12,8 @@ import retrofit2.http.Query;
 
 public interface JsonPlaceHolderApi {
     @GET("weather")
-    Call<CurrentWeather> getCurrentWeather(
-
+    Call<CurrentWeather> getCurrentWeatherByCity(
             @Query("q") String cityName,
-
             @Query("appid") String apiKey,
             @Query("units") String units,
             @Query("lang") String lang
@@ -29,12 +27,15 @@ public interface JsonPlaceHolderApi {
             @Query("lang") String lang
     );
 
-    @GET("forecast/list")
-    Call<List<Day>> getDaysWeather(
-            @Query("q") String cityName,
+    @GET("weather")
+    Call<CurrentWeather> getCurrentWeatherByCoord(
+            @Query("lat") double latittude,
+            @Query("lon") double longitude,
             @Query("appid") String apiKey,
             @Query("units") String units,
             @Query("lang") String lang
     );
+
+
 
 }

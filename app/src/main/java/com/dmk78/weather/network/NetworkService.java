@@ -1,6 +1,8 @@
-package com.dmk78.weather;
+package com.dmk78.weather.network;
 
 import android.util.Log;
+
+import com.dmk78.weather.BuildConfig;
 
 import java.io.IOException;
 

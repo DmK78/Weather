@@ -1,6 +1,7 @@
 package com.dmk78.weather;
 
 import com.dmk78.weather.Data.CurrentWeather;
+import com.dmk78.weather.network.NetworkService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -14,10 +15,10 @@ public class WeatherUpdater {
 
 
 
-    public static CurrentWeather updateCurrentWeatherByCitiName(final String city) {
+    public static CurrentWeather updateCurrentWeatherByCityName(final String city) {
     NetworkService networkService = NetworkService.getInstance();
         final CurrentWeather[] result = {null};
-        networkService.getJSONApi().getCurrentWeather(city, key, units, lang)
+        networkService.getJSONApi().getCurrentWeatherByCity(city, key, units, lang)
                 .enqueue(new Callback<CurrentWeather>() {
                     @Override
                     public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
