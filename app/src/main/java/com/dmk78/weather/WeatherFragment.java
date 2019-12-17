@@ -13,14 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -43,7 +42,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
@@ -60,8 +58,8 @@ public class WeatherFragment extends Fragment implements LocationListener {
     private String key = "8f99535cdea446be868e707ba8062fc0";
     private String units = "metric";
     private String lang = "ru";
-
-    NetworkService networkService = NetworkService.getInstance();
+    private ConstraintLayout bg;
+    private NetworkService networkService = NetworkService.getInstance();
     private RecyclerView recycler;
     public DaysAdapter adapter;
     private List<Day> days;
@@ -70,7 +68,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
             textViewWindSpeed;
     private CurrentWeather currentWeather;
-    private Button buttonFindCity;
     private PlacePreferences placePreferences;
     private String currentCity;
     private final int REQUEST_LOCATION_PERMISSION = 1;
@@ -82,6 +79,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
         bindAllViews(view);
+
         placePreferences = new PlacePreferences(getContext());
         imageViewGetCurrentLocation.setOnClickListener(this::getCoord);
         currentCity = placePreferences.getPlaceName();
@@ -106,6 +104,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 mLatitude = pos.latitude;
                 mLongitude = pos.longitude;
                 currentCity = place.getName();
+                search.setText(null);
                 getWeatherByCoord(mLatitude, mLongitude);
 
 
@@ -154,6 +153,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
         textViewWindSpeed = view.findViewById(R.id.textViewWindSpeed);
         imageViewGetCurrentLocation = view.findViewById(R.id.imageViewGetLocation);
         imageViewWind = view.findViewById(R.id.imageViewWind);
+        bg = view.findViewById(R.id.bgMain);
     }
 
     private void getCoord(View view) {
@@ -240,6 +240,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
 //        textViewWindDirection.setText(String.valueOf(currentWeather.getWind().getDegree())+"degree");
         imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(this.currentWeather.getWeather().get(0).getIcon()));
         imageViewWind.animate().rotation(this.currentWeather.getWind().getDegree()).setDuration(1000).start();
+        bg.setBackgroundResource(BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
     }
 
 
@@ -282,6 +283,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
 
     /**
      * метод обрезает дату
+     *
      * @param data
      * @return
      */
@@ -292,6 +294,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
 
     /**
      * метод группирует дни по дате, вычисляет минимальную и максимальнут температуру
+     *
      * @param days
      * @return
      */
@@ -305,7 +308,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
         while (iterator.hasNext()) {
             Day day = iterator.next();
             String tmp = convertData(day.getDt_txt());
-            if(day.getDt_txt().length()>10){ //странный глюк, почему то итератор начинает проходить по второму разу, пришлось поставить это условие
+            if (day.getDt_txt().length() > 10) { //странный глюк, почему то итератор начинает проходить по второму разу, пришлось поставить это условие
                 day.setDt_txt(tmp);
             }
             if (day.getDt_txt().equals(baseData)) {

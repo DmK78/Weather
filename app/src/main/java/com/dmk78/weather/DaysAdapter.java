@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dmk78.weather.Data.Day;
@@ -41,9 +42,32 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
         final Day day = days.get(i);
 
         holder.textViewDate.setText(day.getDt_txt());
-        holder.textViewTempMax.setText("" + Math.round(day.getMain().getTemp()));
+        holder.textViewTempMax.setText("" + Math.round(day.getMain().getMaxTemp()));
         holder.textViewTempMin.setText("" + Math.round(day.getMain().getMinTemp()));
         holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
+
+        holder.bg.setBackgroundResource(BgColorSetter.set(day.getMain().getMaxTemp()));
+        /*float maxTemp = day.getMain().getMaxTemp();
+        if (maxTemp > 30) {
+            holder.bg.setBackgroundResource(R.color.colorWeather6);
+        }
+        if (maxTemp > 20 && maxTemp <= 30) {
+            holder.bg.setBackgroundResource(R.color.colorWeather5);
+        }
+        if (maxTemp > 10 && maxTemp <= 20) {
+            holder.bg.setBackgroundResource(R.color.colorWeather4);
+        }
+        if (maxTemp <= 10 && maxTemp > -10) {
+            holder.bg.setBackgroundResource(R.color.colorWeather3);
+        }
+        if (maxTemp <= -10 && maxTemp >= -20) {
+            holder.bg.setBackgroundResource(R.color.colorWeather2);
+        }
+        if (maxTemp < -20) {
+            holder.bg.setBackgroundResource(R.color.colorWeather1);
+        }*/
+
+
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,7 +79,6 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
     }
 
 
-
     @Override
     public int getItemCount() {
         return days.size();
@@ -64,7 +87,7 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
     public class DayHolder extends RecyclerView.ViewHolder {
         TextView textViewDate, textViewTempMax, textViewTempMin;
         ImageView imageViewDayWeather;
-
+        ConstraintLayout bg;
         View view;
 
         public DayHolder(View itemView) {
@@ -73,6 +96,7 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
             textViewTempMax = itemView.findViewById(R.id.textViewDayTempMax);
             textViewTempMin = itemView.findViewById(R.id.textViewDayTempMin);
             imageViewDayWeather = itemView.findViewById(R.id.imageViewDay);
+            bg = itemView.findViewById(R.id.dayBg);
             this.view = itemView;
         }
 

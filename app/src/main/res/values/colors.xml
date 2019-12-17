@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3052B1</color>
     <color name="colorPrimaryDark">#0F293D</color>
     <color name="colorAccent">#E2C619</color>
+    <color name="colorWeather7">#FC7441</color>
+    <color name="colorWeather6">#E4A638</color>
+    <color name="colorWeather5">#E0BC94</color>
+    <color name="colorWeather4">#CDCEF0</color>
+    <color name="colorWeather3">#9CD8C9</color>
+    <color name="colorWeather2">#87CBDB</color>
+    <color name="colorWeather1">#85B2FF</color>
+
 </resources>
