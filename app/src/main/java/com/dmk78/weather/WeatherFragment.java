@@ -24,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dmk78.weather.Data.CurrentWeather;
@@ -37,8 +39,13 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -60,25 +67,15 @@ public class WeatherFragment extends Fragment implements LocationListener {
     private List<Day> days;
     private List<Day> convertedDays;
     private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
-    private EditText editTextEnterCity;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
-            textViewWindSpeed, textViewWindDirection;
+            textViewWindSpeed;
     private CurrentWeather currentWeather;
     private Button buttonFindCity;
     private PlacePreferences placePreferences;
     private String currentCity;
     private final int REQUEST_LOCATION_PERMISSION = 1;
+    private FiveDaysWeather fiveDaysWeather;
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        currentCity = placePreferences.getPlaceName();
-        if (currentCity != "") {
-            mLatitude = placePreferences.getLat();
-            mLongitude = placePreferences.getLng();
-            getWeatherByCoord(mLatitude, mLongitude);
-        }
-    }
 
     @Nullable
     @Override
@@ -120,14 +117,14 @@ public class WeatherFragment extends Fragment implements LocationListener {
             }
         });
         //getAllDays("Dubai");
-        //recycler = view.findViewById(R.id.resyclerDays);
-        //this.recycler.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        recycler = view.findViewById(R.id.resyclerDays);
+        this.recycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
 
         return view;
     }
 
-    private void checkLocPermissions(){
+    private void checkLocPermissions() {
 
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -185,7 +182,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
 
-
     private void getWeatherByCoord(double mLatitude, double mLongitude) {
         networkService.getJSONApi().getCurrentWeatherByCoord(mLatitude, mLongitude, key, units, lang).enqueue(new Callback<CurrentWeather>() {
             @Override
@@ -193,11 +189,12 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 if (response.isSuccessful()) {
                     currentWeather = response.body();
                     Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
-                   // if (currentCity == "") {
-                        currentCity = currentWeather.getCityName();
-                    //}
-                    renderCurrentWeather();
+                    if (currentCity != "") {
+                        currentWeather.setCityName(currentCity);
+                    }
+                    renderCurrentWeather(currentWeather);
                     savePreferences();
+                    getAllDays(currentWeather.getCityName());
 
                 }
             }
@@ -217,7 +214,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
                         if (response.isSuccessful()) {
                             currentWeather = response.body();
                             currentCity = city;
-                            renderCurrentWeather();
+                            renderCurrentWeather(currentWeather);
                             savePreferences();
                             // getAllDays(currentWeather.getCityName());
                         }
@@ -230,28 +227,31 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 });
     }
 
-    private void renderCurrentWeather() {
-        textViewCity.setText(currentCity + ", " + currentWeather.getSys().getCountry());
-        textViewTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getTemp())) + " C");
-        textViewMinTemp.setText(String.valueOf(Math.round(currentWeather.getMain().getMinTemp())) + " C");
-        textViewPressure.setText(String.valueOf(currentWeather.getMain().getPressure()));
-        textViewWeatherDesc.setText(currentWeather.getWeather().get(0).getDescription());
-        textViewWindSpeed.setText(String.valueOf(currentWeather.getWind().getSpeed()) + "m/s");
+    private void renderCurrentWeather(CurrentWeather currentWeather) {
+        Date date = new Date();
+        date.setTime((long) currentWeather.getDt() * 1000);
+        SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy");
+        textViewCity.setText(formatForDateNow.format(date) + " " + currentWeather.getCityName() + ", " + this.currentWeather.getSys().getCountry());
+        textViewTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getTemp())) + " C");
+        textViewMinTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getMinTemp())) + " C");
+        textViewPressure.setText(String.valueOf(this.currentWeather.getMain().getPressure()));
+        textViewWeatherDesc.setText(this.currentWeather.getWeather().get(0).getDescription());
+        textViewWindSpeed.setText(String.valueOf(this.currentWeather.getWind().getSpeed()) + "m/s");
 //        textViewWindDirection.setText(String.valueOf(currentWeather.getWind().getDegree())+"degree");
-        imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
-        imageViewWind.animate().rotation(currentWeather.getWind().getDegree()).setDuration(1000).start();
+        imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(this.currentWeather.getWeather().get(0).getIcon()));
+        imageViewWind.animate().rotation(this.currentWeather.getWind().getDegree()).setDuration(1000).start();
     }
 
 
     private void getAllDays(String city) {
 
 
-        networkService.getJSONApi().getFiveDaysWeather(city, key, units, lang)
+        networkService.getJSONApi().getFiveDaysWeather(mLatitude, mLongitude, key, units, lang)
                 .enqueue(new Callback<FiveDaysWeather>() {
                     @Override
                     public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
                         if (response.isSuccessful()) {
-                            FiveDaysWeather fiveDaysWeather = response.body();
+                            fiveDaysWeather = response.body();
 
                             fillDaysList(fiveDaysWeather.getList());
 
@@ -271,14 +271,65 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
     private void fillDaysList(List<Day> days) {
+
         days.addAll(days);
 
-        adapter = new DaysAdapter(days, getContext());
+        convertedDays = convertToShort(days);
+
+        adapter = new DaysAdapter(convertedDays, getContext());
         recycler.setAdapter(adapter);
     }
 
-    private void savePreferences() {
+    /**
+     * метод обрезает дату
+     * @param data
+     * @return
+     */
+    private String convertData(String data) {
+        String result = data.substring(8, 10) + "." + data.substring(5, 7) + "." + data.substring(0, 4);
+        return result;
+    }
 
+    /**
+     * метод группирует дни по дате, вычисляет минимальную и максимальнут температуру
+     * @param days
+     * @return
+     */
+    private List<Day> convertToShort(List<Day> days) {
+        String baseData = convertData(days.get(0).getDt_txt());
+        //String baseData = "";
+        float minTemp = +100;
+        float maxTemp = -100;
+        List<Day> result = new ArrayList<>();
+        ListIterator<Day> iterator = days.listIterator();
+        while (iterator.hasNext()) {
+            Day day = iterator.next();
+            String tmp = convertData(day.getDt_txt());
+            if(day.getDt_txt().length()>10){ //странный глюк, почему то итератор начинает проходить по второму разу, пришлось поставить это условие
+                day.setDt_txt(tmp);
+            }
+            if (day.getDt_txt().equals(baseData)) {
+                if (day.getMain().getMinTemp() < minTemp) {
+                    minTemp = day.getMain().getMinTemp();
+                }
+                if (day.getMain().getMaxTemp() > maxTemp) {
+                    maxTemp = day.getMain().getMaxTemp();
+                }
+                continue;
+            } else {
+                Day dayPrev = days.get(iterator.previousIndex() - 1);
+                baseData = day.getDt_txt();
+                dayPrev.getMain().setMaxTemp(maxTemp);
+                dayPrev.getMain().setMinTemp(minTemp);
+                maxTemp = -100;
+                minTemp = +100;
+                result.add(dayPrev);
+            }
+        }
+        return result;
+    }
+
+    private void savePreferences() {
         placePreferences.savePlace(currentCity, mLatitude, mLongitude);
     }
 

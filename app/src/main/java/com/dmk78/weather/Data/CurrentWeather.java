@@ -11,6 +11,7 @@ public class CurrentWeather {
     private List<Weather> weather;
     private Wind wind;
     private Sys sys;
+    private Integer dt;
 
     @SerializedName("name")
     private String cityName;
@@ -35,4 +36,11 @@ public class CurrentWeather {
         return sys;
     }
 
+    public Integer getDt() {
+        return dt;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
 }

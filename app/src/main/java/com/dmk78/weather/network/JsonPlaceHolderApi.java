@@ -21,7 +21,8 @@ public interface JsonPlaceHolderApi {
 
     @GET("forecast")
     Call<FiveDaysWeather> getFiveDaysWeather(
-            @Query("q") String cityName,
+            @Query("lat") double latittude,
+            @Query("lon") double longitude,
             @Query("appid") String apiKey,
             @Query("units") String units,
             @Query("lang") String lang

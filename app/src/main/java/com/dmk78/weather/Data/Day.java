@@ -4,6 +4,11 @@ import java.util.List;
 
 public class Day {
 
+/*    public Day() {
+        String tmp = dt_txt;
+        dt_txt=tmp.substring(9, 10) + "." + tmp.substring(6, 7) + "." + tmp.substring(0, 4);
+    }*/
+
     private Main main;
     private List<Weather> weather;
     private Wind wind;
@@ -35,5 +40,9 @@ public class Day {
 
     public void setWind(Wind wind) {
         this.wind = wind;
+    }
+
+    public void setDt_txt(String dt_txt) {
+        this.dt_txt = dt_txt;
     }
 }

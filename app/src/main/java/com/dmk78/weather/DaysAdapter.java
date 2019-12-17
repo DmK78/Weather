@@ -47,7 +47,7 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onDayClick(day);
+//                callback.onDayClick(day);
             }
         });
 

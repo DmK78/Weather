@@ -2,16 +2,15 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     app:cardCornerRadius="5dp"
-    app:cardElevation="5dp"
-    >
+    app:cardElevation="5dp">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp">
 
@@ -19,45 +18,48 @@
             android:id="@+id/textViewDayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal|center_vertical"
             android:text="TextView"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/imageViewDay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewDayDate"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/textViewDayTempMax"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:text="TextView"
             android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageViewDay" />
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="мин:"
-            app:layout_constraintEnd_toStartOf="@+id/textViewDayTempMin"
-            app:layout_constraintTop_toBottomOf="@+id/textViewDayTempMax" />
+            app:layout_constraintBottom_toBottomOf="@+id/imageViewDay"
+            app:layout_constraintEnd_toStartOf="@+id/imageViewDay"
+            app:layout_constraintTop_toTopOf="@+id/imageViewDay" />
 
         <TextView
             android:id="@+id/textViewDayTempMin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="TextView"
-            app:layout_constraintEnd_toEndOf="@+id/textViewDayTempMax"
-            app:layout_constraintTop_toBottomOf="@+id/textViewDayTempMax" />
+            app:layout_constraintBottom_toBottomOf="@+id/imageViewDay"
+            app:layout_constraintStart_toEndOf="@+id/imageViewDay"
+            app:layout_constraintTop_toTopOf="@+id/imageViewDay" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.7" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.cardview.widget.CardView>

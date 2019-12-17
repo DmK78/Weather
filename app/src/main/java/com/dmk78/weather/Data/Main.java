@@ -36,6 +36,11 @@ public class Main {
         return maxTemp;
     }
 
+    public void setMinTemp(float minTemp) {
+        this.minTemp = minTemp;
+    }
 
-
+    public void setMaxTemp(float maxTemp) {
+        this.maxTemp = maxTemp;
+    }
 }
