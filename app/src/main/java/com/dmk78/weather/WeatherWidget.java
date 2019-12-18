@@ -9,7 +9,14 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.dmk78.weather.Data.CurrentWeather;
+import com.dmk78.weather.network.NetworkService;
+
 import java.util.Arrays;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class WeatherWidget extends AppWidgetProvider {
 
@@ -17,6 +24,9 @@ public class WeatherWidget extends AppWidgetProvider {
     private static final String SYNC_CLICKED    = "weather_widget_update_action";
     private static final String WAITING_MESSAGE = "Wait for weather";
     public static final int httpsDelayMs = 300;
+    private static String key = "8f99535cdea446be868e707ba8062fc0";
+    private static String units = "metric";
+    private static String lang = "ru";
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId)  {
@@ -33,12 +43,41 @@ public class WeatherWidget extends AppWidgetProvider {
 
         PlacePreferences placePreferences = new PlacePreferences(context);
         String currentCity = placePreferences.getPlaceName();
+        double lat = placePreferences.getLat();
+        double lng = placePreferences.getLng();
+
+        NetworkService networkService = NetworkService.getInstance();
+        networkService.getJSONApi().getCurrentWeatherByCoord(lat,lng,key,units,lang).enqueue(new Callback<CurrentWeather>() {
+            @Override
+            public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
+                if (response.isSuccessful()){
+                    CurrentWeather currentWeather=response.body();
+                    views.setTextViewText(R.id.tv, "Weather for");
+                    views.setTextViewText(R.id.textViewWidgetCity, currentWeather.getCityName());
+                    views.setTextViewText(R.id.textViewWidgetTemp, String.valueOf(currentWeather.getMain().getTemp()));
+
+                    //widget manager to update the widget
+                    appWidgetManager.updateAppWidget(appWidgetId, views);
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<CurrentWeather> call, Throwable t) {
+
+            }
+        });
+
+
+
+
+
 
         //выводим в виджет результат
-        views.setTextViewText(R.id.textViewWidgetCity, currentCity);
+
 
         // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+
     }
 
     @Override
@@ -99,14 +138,32 @@ public class WeatherWidget extends AppWidgetProvider {
 
             //updating widget
             appWidgetManager.updateAppWidget(watchWidget, remoteViews);
+            PlacePreferences placePreferences = new PlacePreferences(context);
+            String currentCity = placePreferences.getPlaceName();
+            double lat = placePreferences.getLat();
+            double lng = placePreferences.getLng();
 
-            String output;
+            NetworkService networkService = NetworkService.getInstance();
+            networkService.getJSONApi().getCurrentWeatherByCoord(lat,lng,key,units,lang).enqueue(new Callback<CurrentWeather>() {
+                @Override
+                public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
+                    if (response.isSuccessful()){
+                        String output=response.body().getCityName();
+                        remoteViews.setTextViewText(R.id.textViewWidgetCity, output);
 
+                        //widget manager to update the widget
+                        appWidgetManager.updateAppWidget(watchWidget, remoteViews);
+                    }
 
-//            remoteViews.setTextViewText(R.id.textViewWidgetCity, output);
+                }
 
-            //widget manager to update the widget
-            appWidgetManager.updateAppWidget(watchWidget, remoteViews);
+                @Override
+                public void onFailure(Call<CurrentWeather> call, Throwable t) {
+
+                }
+            });
+
+//
 
         }
     }
