@@ -62,8 +62,8 @@ public class WeatherFragment extends Fragment implements LocationListener {
     private NetworkService networkService = NetworkService.getInstance();
     private RecyclerView recycler;
     public DaysAdapter adapter;
-    private List<Day> days;
-    private List<Day> convertedDays;
+    private List<Day> days = new ArrayList<>();
+    //private List<Day> convertedDays;
     private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
             textViewWindSpeed;
@@ -272,12 +272,9 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
     private void fillDaysList(List<Day> days) {
-
-        days.addAll(days);
-
-        convertedDays = convertToShort(days);
-
-        adapter = new DaysAdapter(convertedDays, getContext());
+        this.days.clear();
+        this.days.addAll(convertToShort(days));
+        adapter = new DaysAdapter(this.days, getContext());
         recycler.setAdapter(adapter);
     }
 
@@ -304,13 +301,12 @@ public class WeatherFragment extends Fragment implements LocationListener {
         float minTemp = +100;
         float maxTemp = -100;
         List<Day> result = new ArrayList<>();
-        ListIterator<Day> iterator = days.listIterator();
-        while (iterator.hasNext()) {
-            Day day = iterator.next();
+
+        for (int i = 0; i < days.size(); i++) {
+            Day day = days.get(i);
+            Log.i("days", day.getDt_txt());
             String tmp = convertData(day.getDt_txt());
-            if (day.getDt_txt().length() > 10) { //странный глюк, почему то итератор начинает проходить по второму разу, пришлось поставить это условие
-                day.setDt_txt(tmp);
-            }
+            day.setDt_txt(tmp);
             if (day.getDt_txt().equals(baseData)) {
                 if (day.getMain().getMinTemp() < minTemp) {
                     minTemp = day.getMain().getMinTemp();
@@ -318,9 +314,10 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 if (day.getMain().getMaxTemp() > maxTemp) {
                     maxTemp = day.getMain().getMaxTemp();
                 }
+
                 continue;
             } else {
-                Day dayPrev = days.get(iterator.previousIndex() - 1);
+                Day dayPrev = days.get(i - 1);
                 baseData = day.getDt_txt();
                 dayPrev.getMain().setMaxTemp(maxTemp);
                 dayPrev.getMain().setMinTemp(minTemp);
@@ -328,7 +325,12 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 minTemp = +100;
                 result.add(dayPrev);
             }
+
         }
+
+
+
+
         return result;
     }
 

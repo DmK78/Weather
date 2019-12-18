@@ -46,27 +46,8 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
         holder.textViewTempMin.setText("" + Math.round(day.getMain().getMinTemp()));
         holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
 
-        holder.bg.setBackgroundResource(BgColorSetter.set(day.getMain().getMaxTemp()));
-        /*float maxTemp = day.getMain().getMaxTemp();
-        if (maxTemp > 30) {
-            holder.bg.setBackgroundResource(R.color.colorWeather6);
-        }
-        if (maxTemp > 20 && maxTemp <= 30) {
-            holder.bg.setBackgroundResource(R.color.colorWeather5);
-        }
-        if (maxTemp > 10 && maxTemp <= 20) {
-            holder.bg.setBackgroundResource(R.color.colorWeather4);
-        }
-        if (maxTemp <= 10 && maxTemp > -10) {
-            holder.bg.setBackgroundResource(R.color.colorWeather3);
-        }
-        if (maxTemp <= -10 && maxTemp >= -20) {
-            holder.bg.setBackgroundResource(R.color.colorWeather2);
-        }
-        if (maxTemp < -20) {
-            holder.bg.setBackgroundResource(R.color.colorWeather1);
-        }*/
-
+        holder.bg.setBackgroundResource(BgColorSetter.set(Math.round(day.getMain().getMaxTemp())));
+        
 
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
