@@ -21,7 +21,7 @@ import retrofit2.Response;
 public class WeatherWidget extends AppWidgetProvider {
 
     final String LOG_TAG = "myLogs";
-    private static final String SYNC_CLICKED    = "weather_widget_update_action";
+    private static final String SYNC_CLICKED = "weather_widget_update_action";
     private static final String WAITING_MESSAGE = "Wait for weather";
     public static final int httpsDelayMs = 300;
     private static String key = "8f99535cdea446be868e707ba8062fc0";
@@ -29,7 +29,7 @@ public class WeatherWidget extends AppWidgetProvider {
     private static String lang = "ru";
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId)  {
+                                int appWidgetId) {
 
         //Объект RemoteViews дает нам доступ к отображаемым в виджете элементам:
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
@@ -47,13 +47,13 @@ public class WeatherWidget extends AppWidgetProvider {
         double lng = placePreferences.getLng();
 
         NetworkService networkService = NetworkService.getInstance();
-        networkService.getJSONApi().getCurrentWeatherByCoord(lat,lng,key,units,lang).enqueue(new Callback<CurrentWeather>() {
+        networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, key, units, lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
-                if (response.isSuccessful()){
-                    CurrentWeather currentWeather=response.body();
+                if (response.isSuccessful()) {
+                    CurrentWeather currentWeather = response.body();
                     views.setTextViewText(R.id.tv, "Weather for");
-                    views.setTextViewText(R.id.textViewWidgetCity, currentWeather.getCityName());
+                    views.setTextViewText(R.id.textViewWidgetCity, currentCity);
                     views.setTextViewText(R.id.textViewWidgetTemp, String.valueOf(currentWeather.getMain().getTemp()));
 
                     //widget manager to update the widget
@@ -67,10 +67,6 @@ public class WeatherWidget extends AppWidgetProvider {
 
             }
         });
-
-
-
-
 
 
         //выводим в виджет результат
@@ -94,7 +90,7 @@ public class WeatherWidget extends AppWidgetProvider {
         remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
         componentName = new ComponentName(context, WeatherWidget.class);
 
-        remoteViews.setOnClickPendingIntent(R.id.textViewWidgetCity,   getPendingSelfIntent(context, SYNC_CLICKED));
+        remoteViews.setOnClickPendingIntent(R.id.textViewWidgetCity, getPendingSelfIntent(context, SYNC_CLICKED));
         appWidgetManager.updateAppWidget(componentName, remoteViews);
 
         //обновление всех экземпляров виджета
@@ -144,13 +140,14 @@ public class WeatherWidget extends AppWidgetProvider {
             double lng = placePreferences.getLng();
 
             NetworkService networkService = NetworkService.getInstance();
-            networkService.getJSONApi().getCurrentWeatherByCoord(lat,lng,key,units,lang).enqueue(new Callback<CurrentWeather>() {
+            networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, key, units, lang).enqueue(new Callback<CurrentWeather>() {
                 @Override
                 public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
-                    if (response.isSuccessful()){
-                        String output=response.body().getCityName();
-                        remoteViews.setTextViewText(R.id.textViewWidgetCity, output);
-
+                    if (response.isSuccessful()) {
+                        CurrentWeather currentWeather = response.body();
+                        remoteViews.setTextViewText(R.id.textViewWidgetCity, currentCity);
+                        remoteViews.setTextViewText(R.id.textViewWidgetTemp, String.valueOf(currentWeather.getMain().getTemp()));
+                        //remoteViews.setTextColor(R.id.textViewWidgetTemp, BgColorSetter.set(currentWeather.getMain().getTemp()));
                         //widget manager to update the widget
                         appWidgetManager.updateAppWidget(watchWidget, remoteViews);
                     }

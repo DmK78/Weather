@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widgetBg"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimaryDark"
@@ -19,7 +20,7 @@
             android:gravity="center"
             android:text="@string/widget_text"
             android:textColor="#000"
-            android:textSize="18sp"></TextView>
+            android:textSize="10sp"></TextView>
 
         <TextView
             android:id="@+id/textViewWidgetCity"
