@@ -1,6 +1,8 @@
-package com.dmk78.weather.Data;
+package com.dmk78.weather.model;
 
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Objects;
 
 public class Main {
 
@@ -42,5 +44,22 @@ public class Main {
 
     public void setMaxTemp(float maxTemp) {
         this.maxTemp = maxTemp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Main main = (Main) o;
+        return Float.compare(main.temp, temp) == 0 &&
+                Float.compare(main.pressure, pressure) == 0 &&
+                Float.compare(main.humidity, humidity) == 0 &&
+                Float.compare(main.minTemp, minTemp) == 0 &&
+                Float.compare(main.maxTemp, maxTemp) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(temp, pressure, humidity, minTemp, maxTemp);
     }
 }

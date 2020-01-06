@@ -1,7 +1,6 @@
-package com.dmk78.weather.Data;
+package com.dmk78.weather.model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.util.Objects;
 
 public class Weather {
 
@@ -41,5 +40,21 @@ public class Weather {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Weather weather = (Weather) o;
+        return Objects.equals(id, weather.id) &&
+                Objects.equals(main, weather.main) &&
+                Objects.equals(description, weather.description) &&
+                Objects.equals(icon, weather.icon);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, main, description, icon);
     }
 }

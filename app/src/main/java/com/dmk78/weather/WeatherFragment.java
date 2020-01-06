@@ -23,13 +23,12 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.dmk78.weather.Data.CurrentWeather;
-import com.dmk78.weather.Data.FiveDaysWeather;
-import com.dmk78.weather.Data.Day;
+import com.dmk78.weather.model.CurrentWeather;
+import com.dmk78.weather.model.FiveDaysWeather;
+import com.dmk78.weather.model.Day;
 import com.dmk78.weather.network.NetworkService;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
@@ -43,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -63,7 +61,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
     private RecyclerView recycler;
     public DaysAdapter adapter;
     private List<Day> days = new ArrayList<>();
-    //private List<Day> convertedDays;
     private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
             textViewWindSpeed;
@@ -237,7 +234,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
         textViewPressure.setText(String.valueOf(this.currentWeather.getMain().getPressure()));
         textViewWeatherDesc.setText(this.currentWeather.getWeather().get(0).getDescription());
         textViewWindSpeed.setText(String.valueOf(this.currentWeather.getWind().getSpeed()) + "m/s");
-//        textViewWindDirection.setText(String.valueOf(currentWeather.getWind().getDegree())+"degree");
         imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(this.currentWeather.getWeather().get(0).getIcon()));
         imageViewWind.animate().rotation(this.currentWeather.getWind().getDegree()).setDuration(1000).start();
         bg.setBackgroundResource(BgColorSetter.set(currentWeather.getMain().getMaxTemp()));

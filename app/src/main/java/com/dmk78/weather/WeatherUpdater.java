@@ -1,6 +1,6 @@
 package com.dmk78.weather;
 
-import com.dmk78.weather.Data.CurrentWeather;
+import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.network.NetworkService;
 
 import retrofit2.Call;

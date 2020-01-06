@@ -1,9 +1,9 @@
-package com.dmk78.weather.Data;
+package com.dmk78.weather.model;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+import java.util.Objects;
 
 public class CurrentWeather {
 
@@ -42,5 +42,23 @@ public class CurrentWeather {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CurrentWeather that = (CurrentWeather) o;
+        return Objects.equals(main, that.main) &&
+                Objects.equals(weather, that.weather) &&
+                Objects.equals(wind, that.wind) &&
+                Objects.equals(sys, that.sys) &&
+                Objects.equals(dt, that.dt) &&
+                Objects.equals(cityName, that.cityName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(main, weather, wind, sys, dt, cityName);
     }
 }

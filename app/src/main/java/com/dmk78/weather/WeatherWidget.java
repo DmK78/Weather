@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.dmk78.weather.Data.CurrentWeather;
+import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.network.NetworkService;
 
 import java.util.Arrays;

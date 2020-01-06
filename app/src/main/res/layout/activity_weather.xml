@@ -5,8 +5,10 @@
     android:id="@+id/bgMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     android:orientation="vertical"
-    android:padding="5dp">
+    android:padding="5dp"
+    tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/textViewCurrentCity"

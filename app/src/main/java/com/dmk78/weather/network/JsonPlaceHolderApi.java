@@ -1,10 +1,7 @@
 package com.dmk78.weather.network;
 
-import com.dmk78.weather.Data.CurrentWeather;
-import com.dmk78.weather.Data.FiveDaysWeather;
-import com.dmk78.weather.Data.Day;
-
-import java.util.List;
+import com.dmk78.weather.model.CurrentWeather;
+import com.dmk78.weather.model.FiveDaysWeather;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

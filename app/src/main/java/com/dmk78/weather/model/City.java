@@ -1,7 +1,8 @@
-package com.dmk78.weather.Data;
+package com.dmk78.weather.model;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Objects;
 
 public class City {
 
@@ -53,5 +54,25 @@ public class City {
 
     public Integer getSunset() {
         return sunset;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        City city = (City) o;
+        return Objects.equals(id, city.id) &&
+                Objects.equals(name, city.name) &&
+                Objects.equals(coord, city.coord) &&
+                Objects.equals(country, city.country) &&
+                Objects.equals(population, city.population) &&
+                Objects.equals(timeZone, city.timeZone) &&
+                Objects.equals(sunrise, city.sunrise) &&
+                Objects.equals(sunset, city.sunset);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, coord, country, population, timeZone, sunrise, sunset);
     }
 }

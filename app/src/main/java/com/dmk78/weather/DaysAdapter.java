@@ -11,12 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.dmk78.weather.Data.Day;
+import com.dmk78.weather.model.Day;
 
 import java.util.List;
 
 public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
-    private static OnDayAdapterClickListener callback;
+    private OnDayAdapterClickListener callback;
     private List<Day> days;
     private LayoutInflater inflater;
 
@@ -85,7 +85,7 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
     }
 
     public void setOnItemClickListener(OnDayAdapterClickListener clickListener) {
-        DaysAdapter.callback = clickListener;
+        callback = clickListener;
     }
 
     public interface OnDayAdapterClickListener {

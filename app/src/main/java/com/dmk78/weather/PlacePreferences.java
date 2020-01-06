@@ -3,12 +3,10 @@ package com.dmk78.weather;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.dmk78.weather.Data.CurrentWeather;
-
 public class PlacePreferences {
     private SharedPreferences sharedPreferences;
     private Context context;
-    SharedPreferences.Editor editor;
+    private SharedPreferences.Editor editor;
     public static final String MY_SETTINGS = "my_settings";
     public static final String APP_PREFERENCES_PLACE = "place";
     public static final String APP_PREFERENCES_LAT = "lat";
