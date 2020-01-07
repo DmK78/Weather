@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Погода</string>
     <string name="widget_name">Погодный виджет</string>
     <string name="widget_text">Погода в</string>
-    <string name="updating">updating</string>
-    <string name="current_city">CurrentCity</string>
+    <string name="updating">обновление</string>
+    <string name="current_city">Текущий город</string>
 </resources>

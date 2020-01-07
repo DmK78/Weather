@@ -237,21 +237,18 @@ public class WeatherFragment extends Fragment implements LocationListener {
         imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(this.currentWeather.getWeather().get(0).getIcon()));
         imageViewWind.animate().rotation(this.currentWeather.getWind().getDegree()).setDuration(1000).start();
         bg.setBackgroundResource(BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
+
     }
 
 
     private void getAllDays(String city) {
-
-
         networkService.getJSONApi().getFiveDaysWeather(mLatitude, mLongitude, key, units, lang)
                 .enqueue(new Callback<FiveDaysWeather>() {
                     @Override
                     public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
                         if (response.isSuccessful()) {
                             fiveDaysWeather = response.body();
-
                             fillDaysList(fiveDaysWeather.getList());
-
                         } else {
                             Toast.makeText(getContext(), String.format("Error code is: %s", response.code()), Toast.LENGTH_SHORT).show();
                             Log.i("MyError", "" + response.code());

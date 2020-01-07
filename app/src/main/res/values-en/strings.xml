@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Weather</string>
+    <string name="widget_name">Weather widget</string>
+    <string name="widget_text">Weather in</string>
+    <string name="updating">updating</string>
+    <string name="current_city">Current city</string>
+</resources>
