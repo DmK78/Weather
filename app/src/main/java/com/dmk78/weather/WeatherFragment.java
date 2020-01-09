@@ -136,7 +136,7 @@ public class WeatherFragment extends Fragment {
     private void renderCurrentWeather(CurrentWeather weather) {
         Date date = new Date();
         date.setTime((long) currentWeather.getDt() * 1000);
-        SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy");
+        SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy EEE");
         textViewCity.setText(formatForDateNow.format(date) + "\n" + currentWeather.getCityName() + ", " + this.currentWeather.getSys().getCountry());
         textViewTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getTemp())) + " C");
         textViewMinTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getMinTemp())) + " C");
@@ -215,8 +215,49 @@ public class WeatherFragment extends Fragment {
      * @return
      */
     private List<Day> convertToShort(List<Day> days) {
-        String baseData = convertData(days.get(0).getDt_txt());
-        //String baseData = "";
+        String baseData = days.get(0).getDate();
+        float minTemp = +100;
+        float maxTemp = -100;
+        List<Day> result = new ArrayList<>();
+
+        for (int i = 0; i < days.size(); i++) {
+            Day day = days.get(i);
+            String tmp = day.getDate();
+            day.setDate(tmp);
+            if (day.getDate().equals(baseData)) {
+                if (day.getMain().getMinTemp() < minTemp) {
+                    minTemp = day.getMain().getMinTemp();
+                }
+                if (day.getMain().getMaxTemp() > maxTemp) {
+                    maxTemp = day.getMain().getMaxTemp();
+                }
+
+                continue;
+            } else {
+                Day dayPrev = days.get(i - 1);
+                baseData = day.getDate();
+                dayPrev.getMain().setMaxTemp(maxTemp);
+                dayPrev.getMain().setMinTemp(minTemp);
+                maxTemp = -100;
+                minTemp = +100;
+                result.add(dayPrev);
+            }
+
+        }
+
+
+        return result;
+
+
+
+
+
+
+
+
+
+
+        /*String baseData = convertData(days.get(0).getDt_txt());
         float minTemp = +100;
         float maxTemp = -100;
         List<Day> result = new ArrayList<>();
@@ -248,7 +289,7 @@ public class WeatherFragment extends Fragment {
         }
 
 
-        return result;
+        return result;*/
     }
 
 

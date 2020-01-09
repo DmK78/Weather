@@ -41,7 +41,7 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
     public void onBindViewHolder(@NonNull final DayHolder holder, int i) {
         final Day day = days.get(i);
 
-        holder.textViewDate.setText(day.getDt_txt());
+        holder.textViewDate.setText(day.getDate());
         holder.textViewTempMax.setText("" + Math.round(day.getMain().getMaxTemp()));
         holder.textViewTempMin.setText("" + Math.round(day.getMain().getMinTemp()));
         holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
