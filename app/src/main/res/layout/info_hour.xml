@@ -4,8 +4,9 @@
     android:id="@+id/hourBg"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_margin="1dp"
     android:orientation="vertical"
-    app:cardCornerRadius="2dp">
+    app:cardCornerRadius="5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,16 +17,20 @@
             android:id="@+id/tvHourDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="monospace"
             android:text="@string/date"
             android:textAlignment="center"
+            android:textColor="@android:color/black"
             android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tvHourTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="monospace"
             android:text="@string/time"
             android:textAlignment="center"
+            android:textColor="@color/colorPrimaryDark"
             android:textSize="12sp" />
 
         <TextView
@@ -47,8 +52,11 @@
             android:id="@+id/tvHourDesc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="cursive"
             android:text="@string/description"
             android:textAlignment="center"
-            android:textSize="10sp" />
+            android:textColor="@android:color/black"
+            android:textSize="10sp"
+            android:textStyle="italic" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

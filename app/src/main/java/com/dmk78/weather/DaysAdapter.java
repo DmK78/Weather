@@ -42,8 +42,8 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
         final Day day = days.get(i);
 
         holder.textViewDate.setText(day.getDate());
-        holder.textViewTempMax.setText("" + Math.round(day.getMain().getMaxTemp()));
-        holder.textViewTempMin.setText("" + Math.round(day.getMain().getMinTemp()));
+        holder.textViewTempMax.setText(String.valueOf(Math.round(day.getMain().getMaxTemp()))+" C");
+        holder.textViewTempMin.setText(String.valueOf(Math.round(day.getMain().getMinTemp()))+" C");
         holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
 
         holder.bg.setBackgroundResource(BgColorSetter.set(Math.round(day.getMain().getMaxTemp())));

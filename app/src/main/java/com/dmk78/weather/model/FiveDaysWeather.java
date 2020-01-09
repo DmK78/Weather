@@ -49,11 +49,11 @@ public class FiveDaysWeather {
 
     public void calculateDateTime() {
         for (Day day : days) {
-            day.setTime(day.getDt_txt().substring(10, day.getDt_txt().length()));
+            day.setTime(day.getDt_txt().substring(10, day.getDt_txt().length()-3));
             //day.setDate(day.getDt_txt().substring(0,10));
             day.setDate(day.getDt_txt().substring(8, 10) + "-" + day.getDt_txt().substring(5, 7) + "-" + day.getDt_txt().substring(0, 4));
             SimpleDateFormat fromUser = new SimpleDateFormat("dd-MM-yyyy");
-            SimpleDateFormat myFormat = new SimpleDateFormat("dd MMM yyyy EE");
+            SimpleDateFormat myFormat = new SimpleDateFormat("dd MMM, EE");
 
             try {
 

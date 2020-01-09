@@ -51,7 +51,7 @@ public class WeatherFragment extends Fragment {
     private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
             textViewWindSpeed, textViewHumidity, textViewCity;
-    private CurrentWeather currentWeather;
+    //private CurrentWeather currentWeather;
     private PlacePreferences placePreferences;
     private LocationService locationService;
     private FiveDaysWeather fiveDaysWeather;
@@ -81,6 +81,7 @@ public class WeatherFragment extends Fragment {
             public void onPlaceSelected(Place place) {
                 getWeatherByCoord(place);
             }
+
             @Override
             public void onError(Status status) {
                 Log.i(WeatherFragment.class.getName(), "An error occurred: " + status);
@@ -113,14 +114,15 @@ public class WeatherFragment extends Fragment {
         networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
+                CurrentWeather result = null;
                 if (response.isSuccessful()) {
-                    currentWeather = response.body();
+                    result = response.body();
                     Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
                     if (place.getName().equals("")) {
                     } else {
-                        currentWeather.setCityName(place.getName());
+                        result.setCityName(place.getName());
                     }
-                    renderCurrentWeather(currentWeather);
+                    renderCurrentWeather(result);
                     placePreferences.savePlace(place);
                     getAllDays(place);
                 }
@@ -132,21 +134,20 @@ public class WeatherFragment extends Fragment {
         });
     }
 
-
     private void renderCurrentWeather(CurrentWeather weather) {
         Date date = new Date();
-        date.setTime((long) currentWeather.getDt() * 1000);
+        date.setTime((long) weather.getDt() * 1000);
         SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy EEE");
-        textViewCity.setText(formatForDateNow.format(date) + "\n" + currentWeather.getCityName() + ", " + this.currentWeather.getSys().getCountry());
-        textViewTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getTemp())) + " C");
-        textViewMinTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getMinTemp())) + " C");
-        textViewPressure.setText(String.valueOf(Math.round(this.currentWeather.getMain().getPressure())) + " мм");
-        textViewWeatherDesc.setText(this.currentWeather.getWeather().get(0).getDescription());
-        textViewWindSpeed.setText(String.valueOf(this.currentWeather.getWind().getSpeed()) + " m/s");
-        textViewHumidity.setText(getString(R.string.humidity) + " " + String.valueOf(Math.round(currentWeather.getMain().getHumidity())) + " %");
-        imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(this.currentWeather.getWeather().get(0).getIcon()));
-        imageViewWind.animate().rotation(this.currentWeather.getWind().getDegree()).setDuration(1000).start();
-        bg.setBackgroundResource(BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
+        textViewCity.setText(formatForDateNow.format(date) + "\n" + weather.getCityName() + ", " + weather.getSys().getCountry());
+        textViewTemp.setText(String.valueOf(Math.round(weather.getMain().getTemp())) + " C");
+        textViewMinTemp.setText(String.valueOf(Math.round(weather.getMain().getMinTemp())) + " C");
+        textViewPressure.setText(String.valueOf(Math.round(weather.getMain().getPressure())) + " мм");
+        textViewWeatherDesc.setText(weather.getWeather().get(0).getDescription());
+        textViewWindSpeed.setText(String.valueOf(weather.getWind().getSpeed()) + " m/s");
+        textViewHumidity.setText(getString(R.string.humidity) + " " + String.valueOf(Math.round(weather.getMain().getHumidity())) + " %");
+        imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(weather.getWeather().get(0).getIcon()));
+        imageViewWind.animate().rotation(weather.getWind().getDegree()).setDuration(1000).start();
+        bg.setBackgroundResource(BgColorSetter.set(weather.getMain().getMaxTemp()));
     }
 
 

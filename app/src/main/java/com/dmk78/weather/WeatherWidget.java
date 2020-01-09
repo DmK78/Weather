@@ -38,13 +38,13 @@ public class WeatherWidget extends AppWidgetProvider {
                 if (response.isSuccessful()) {
                     CurrentWeather currentWeather = response.body();
                     views.setTextViewText(R.id.tvWidgetCity, currentCity);
-                    if(currentCity.length()>10){
+                    /*if(currentCity.length()>10){
                         views.setFloat(R.id.tvWidgetCity, "setTextSize", 12);
                     }
                     if(currentWeather.getWeather().get(0).getDescription().length()>10){
                         views.setFloat(R.id.tvWidgetCity, "setTextSize", 8);
-                    }
-                    views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp())+" C");
+                    }*/
+                    views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp()) + " C");
                     views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
                     views.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
                     views.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
@@ -121,17 +121,16 @@ public class WeatherWidget extends AppWidgetProvider {
                     if (response.isSuccessful()) {
                         CurrentWeather currentWeather = response.body();
                         views.setTextViewText(R.id.tvWidgetCity, currentCity);
-                        views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp())+" C");
+                        views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp()) + " C");
                         views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
                         views.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
                         views.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
-                        if(currentCity.length()>10){
+/*                        if (currentCity.length() > 10) {
                             views.setFloat(R.id.tvWidgetCity, "setTextSize", 12);
                         }
-
-                    if(currentWeather.getWeather().get(0).getDescription().length()>10){
-                        views.setFloat(R.id.tvWidgetCity, "setTextSize", 8);
-                    }
+                        if (currentWeather.getWeather().get(0).getDescription().length() > 10) {
+                            views.setFloat(R.id.tvWidgetCity, "setTextSize", 8);
+                        }*/
                         //widget manager to update the widget
                         appWidgetManager.updateAppWidget(watchWidget, views);
                     }

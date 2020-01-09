@@ -43,7 +43,7 @@ class HoursAdapter extends RecyclerView.Adapter<HoursAdapter.HoursHolder> {
 
         holder.textViewDate.setText(day.getDate());
         holder.textViewTime.setText(day.getTime());
-        holder.textViewTemp.setText(String.valueOf(Math.round(day.getMain().getTemp())));
+        holder.textViewTemp.setText(String.valueOf(Math.round(day.getMain().getTemp()))+" C");
         holder.textViewDesc.setText(String.valueOf(day.getWeather().get(0).getDescription()));
         holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
         holder.bg.setBackgroundResource(BgColorSetter.set(Math.round(day.getMain().getMaxTemp())));
