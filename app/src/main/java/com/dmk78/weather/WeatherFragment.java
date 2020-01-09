@@ -45,9 +45,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class WeatherFragment extends Fragment implements LocationListener {
-    private double mLatitude;
-    private double mLongitude;
-    private Location currentLocation;
+    //private double mLatitude;
+    //private double mLongitude;
+    //private Location currentLocation;
     private ConstraintLayout bg;
     private NetworkService networkService = NetworkService.getInstance();
     private RecyclerView recyclerDays;
@@ -61,10 +61,10 @@ public class WeatherFragment extends Fragment implements LocationListener {
             textViewWindSpeed, textViewHumidity, textViewCity;
     private CurrentWeather currentWeather;
     private PlacePreferences placePreferences;
-    private String currentCity;
+    //private String currentCity;
     private LocationService locationService;
-    private final int REQUEST_LOCATION_PERMISSION = 1;
     private FiveDaysWeather fiveDaysWeather;
+    private Place currentPlace;
 
 
     @Nullable
@@ -76,12 +76,15 @@ public class WeatherFragment extends Fragment implements LocationListener {
         locationService.checkLocPermissions();
         placePreferences = new PlacePreferences(getContext());
         imageViewGetCurrentLocation.setOnClickListener(this::getWeatherByLocation);
-        currentCity = placePreferences.getPlaceName();
+        //currentCity = placePreferences.getPlaceName();
+        currentPlace = Place.builder().setName(placePreferences.getPlaceName()).setLatLng(
+                new LatLng(placePreferences.getLat(), placePreferences.getLng())).build();
 
-        if (currentCity != "") {
-            mLatitude = placePreferences.getLat();
-            mLongitude = placePreferences.getLng();
-            getWeatherByCoord(mLatitude, mLongitude);
+        if (currentPlace.getName() != "") {
+            /*currentLocation = new Location("empty location");
+            currentLocation.setLatitude(placePreferences.getLat());
+            currentLocation.setLongitude(placePreferences.getLng());*/
+            getWeatherByCoord(currentPlace.getLatLng().latitude, currentPlace.getLatLng().longitude);
         } else {
             getWeatherByLocation(view);
         }
@@ -94,12 +97,13 @@ public class WeatherFragment extends Fragment implements LocationListener {
         search.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                LatLng pos = place.getLatLng();
-                mLatitude = pos.latitude;
-                mLongitude = pos.longitude;
-                currentCity = place.getName();
+                currentPlace = place;
+                /*LatLng pos = place.getLatLng();
+                currentLocation.setLatitude(place.getLatLng().latitude);
+                currentLocation.setLongitude(place.getLatLng().longitude);
+                currentCity = place.getName();*/
                 search.setText("");
-                getWeatherByCoord(mLatitude, mLongitude);
+                getWeatherByCoord(currentPlace.getLatLng().latitude, currentPlace.getLatLng().longitude);
 
 
             }
@@ -119,7 +123,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
 
-
     private void bindAllViews(View view) {
         imageViewCurrentTemp = view.findViewById(R.id.imageViewCurrent);
         textViewCity = view.findViewById(R.id.textViewCurrentCity);
@@ -135,8 +138,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
 
-
-
     private void getWeatherByCoord(double mLatitude, double mLongitude) {
         networkService.getJSONApi().getCurrentWeatherByCoord(mLatitude, mLongitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
@@ -144,8 +145,8 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 if (response.isSuccessful()) {
                     currentWeather = response.body();
                     Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
-                    if (currentCity != "") {
-                        currentWeather.setCityName(currentCity);
+                    if (currentPlace.getName() != "") {
+                        currentPlace = Place.builder().setName(currentWeather.getCityName()).setLatLng(new LatLng(mLatitude, mLongitude)).build();
                     }
                     renderCurrentWeather(currentWeather);
                     savePreferences();
@@ -160,7 +161,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
             }
         });
     }
-
 
 
     private void renderCurrentWeather(CurrentWeather currentWeather) {
@@ -183,7 +183,8 @@ public class WeatherFragment extends Fragment implements LocationListener {
 
 
     private void getAllDays(String city) {
-        networkService.getJSONApi().getFiveDaysWeather(mLatitude, mLongitude, Constants.key, Constants.units, Constants.lang)
+        networkService.getJSONApi().getFiveDaysWeather(currentPlace.getLatLng().latitude,
+                currentPlace.getLatLng().longitude, Constants.key, Constants.units, Constants.lang)
                 .enqueue(new Callback<FiveDaysWeather>() {
                     @Override
                     public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
@@ -284,7 +285,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
     private void savePreferences() {
-        placePreferences.savePlace(currentWeather.getCityName(), mLatitude, mLongitude);
+        placePreferences.savePlace(currentPlace.getName(), currentPlace.getLatLng().latitude, currentPlace.getLatLng().longitude);
     }
 
 
@@ -310,13 +311,11 @@ public class WeatherFragment extends Fragment implements LocationListener {
 
     }
 
-    private void getWeatherByLocation(View view){
+    private void getWeatherByLocation(View view) {
         Location location = locationService.getCoord();
-        if(location!=null){
-            currentCity="";
-mLatitude=location.getLatitude();
-mLongitude=location.getLongitude();
-            getWeatherByCoord(mLatitude,mLongitude);
+        if (location != null) {
+            currentPlace = Place.builder().setLatLng(new LatLng(location.getAltitude(), location.getLongitude())).build();
+            getWeatherByCoord(currentPlace.getLatLng().latitude, currentPlace.getLatLng().longitude);
         }
     }
 }
