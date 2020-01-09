@@ -38,11 +38,16 @@ public class WeatherWidget extends AppWidgetProvider {
                 if (response.isSuccessful()) {
                     CurrentWeather currentWeather = response.body();
                     views.setTextViewText(R.id.tvWidgetCity, currentCity);
+                    if(currentCity.length()>10){
+                        views.setFloat(R.id.tvWidgetCity, "setTextSize", 12);
+                    }
+                    if(currentWeather.getWeather().get(0).getDescription().length()>10){
+                        views.setFloat(R.id.tvWidgetCity, "setTextSize", 8);
+                    }
                     views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp())+" C");
                     views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
                     views.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
                     views.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
-                    //views.setInt(R.id.widgetBg, "setBackgroundColor", context.getColor(BgColorSetter.set(currentWeather.getMain().getMaxTemp())));
                     //widget manager to update the widget
                     appWidgetManager.updateAppWidget(appWidgetId, views);
                 }
@@ -98,13 +103,13 @@ public class WeatherWidget extends AppWidgetProvider {
         super.onReceive(context, intent);
         if (SYNC_CLICKED.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            RemoteViews remoteViews;
+            RemoteViews views;
             ComponentName watchWidget;
-            remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
+            views = new RemoteViews(context.getPackageName(), R.layout.widget);
             watchWidget = new ComponentName(context, WeatherWidget.class);
-            remoteViews.setTextViewText(R.id.tvWidgetCity, context.getString(R.string.updating));
+            views.setTextViewText(R.id.tvWidgetCity, context.getString(R.string.updating));
             //updating widget
-            appWidgetManager.updateAppWidget(watchWidget, remoteViews);
+            appWidgetManager.updateAppWidget(watchWidget, views);
             PlacePreferences placePreferences = new PlacePreferences(context);
             String currentCity = placePreferences.getPlaceName();
             double lat = placePreferences.getLat();
@@ -115,13 +120,20 @@ public class WeatherWidget extends AppWidgetProvider {
                 public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                     if (response.isSuccessful()) {
                         CurrentWeather currentWeather = response.body();
-                        remoteViews.setTextViewText(R.id.tvWidgetCity, currentCity);
-                        remoteViews.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp())+" C");
-                        remoteViews.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
-                        remoteViews.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
-                        remoteViews.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
+                        views.setTextViewText(R.id.tvWidgetCity, currentCity);
+                        views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp())+" C");
+                        views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
+                        views.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
+                        views.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
+                        if(currentCity.length()>10){
+                            views.setFloat(R.id.tvWidgetCity, "setTextSize", 12);
+                        }
+
+                    if(currentWeather.getWeather().get(0).getDescription().length()>10){
+                        views.setFloat(R.id.tvWidgetCity, "setTextSize", 8);
+                    }
                         //widget manager to update the widget
-                        appWidgetManager.updateAppWidget(watchWidget, remoteViews);
+                        appWidgetManager.updateAppWidget(watchWidget, views);
                     }
                 }
 
@@ -131,4 +143,6 @@ public class WeatherWidget extends AppWidgetProvider {
             });
         }
     }
+
+
 }

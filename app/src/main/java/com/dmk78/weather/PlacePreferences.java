@@ -3,6 +3,9 @@ package com.dmk78.weather;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.model.Place;
+
 public class PlacePreferences {
     private SharedPreferences sharedPreferences;
     private Context context;
@@ -20,10 +23,10 @@ public class PlacePreferences {
 
     }
 
-    public void savePlace(String place, double lat, double lng) {
-        editor.putString(APP_PREFERENCES_PLACE, place);
-        editor.putFloat(APP_PREFERENCES_LAT,(float)lat);
-        editor.putFloat(APP_PREFERENCES_LNG,(float)lng);
+    public void savePlace(Place place) {
+        editor.putString(APP_PREFERENCES_PLACE, place.getName());
+        editor.putFloat(APP_PREFERENCES_LAT,(float)place.getLatLng().latitude);
+        editor.putFloat(APP_PREFERENCES_LNG,(float)place.getLatLng().longitude);
         editor.commit();
     }
 
@@ -35,6 +38,13 @@ public class PlacePreferences {
     }
     public double getLng(){
         return (double) sharedPreferences.getFloat(APP_PREFERENCES_LNG,0);
+    }
+
+
+    public Place getPlace(){
+        return Place.builder().setName(sharedPreferences.getString(APP_PREFERENCES_PLACE,"")).
+                setLatLng(new LatLng(sharedPreferences.getFloat(APP_PREFERENCES_LAT,0),
+                        sharedPreferences.getFloat(APP_PREFERENCES_LNG,0))).build();
     }
 
 

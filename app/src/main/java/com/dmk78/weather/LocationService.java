@@ -15,9 +15,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.model.Place;
+
 import java.util.Objects;
 
-public class LocationService implements LocationListener{
+public class LocationService implements LocationListener {
     private Context contex;
     private Fragment fragment;
     private final int REQUEST_LOCATION_PERMISSION = 1;
@@ -84,4 +87,6 @@ public class LocationService implements LocationListener{
     public void onProviderDisabled(String provider) {
 
     }
+
+
 }
