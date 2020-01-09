@@ -17,9 +17,7 @@ import retrofit2.Response;
 
 public class WeatherWidget extends AppWidgetProvider {
     private static final String SYNC_CLICKED = "weather_widget_update_action";
-    private static String key = "8f99535cdea446be868e707ba8062fc0";
-    private static String units = "metric";
-    private static String lang = "ru";
+
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
@@ -34,16 +32,17 @@ public class WeatherWidget extends AppWidgetProvider {
         double lat = placePreferences.getLat();
         double lng = placePreferences.getLng();
         NetworkService networkService = NetworkService.getInstance();
-        networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, key, units, lang).enqueue(new Callback<CurrentWeather>() {
+        networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                 if (response.isSuccessful()) {
                     CurrentWeather currentWeather = response.body();
                     views.setTextViewText(R.id.tvWidgetCity, currentCity);
-                    views.setTextViewText(R.id.tvWidgetTemp, String.valueOf(currentWeather.getMain().getTemp()) + " C");
+                    views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp())+" C");
                     views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
                     views.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
                     views.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
+                    //views.setInt(R.id.widgetBg, "setBackgroundColor", context.getColor(BgColorSetter.set(currentWeather.getMain().getMaxTemp())));
                     //widget manager to update the widget
                     appWidgetManager.updateAppWidget(appWidgetId, views);
                 }
@@ -111,13 +110,13 @@ public class WeatherWidget extends AppWidgetProvider {
             double lat = placePreferences.getLat();
             double lng = placePreferences.getLng();
             NetworkService networkService = NetworkService.getInstance();
-            networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, key, units, lang).enqueue(new Callback<CurrentWeather>() {
+            networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
                 @Override
                 public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                     if (response.isSuccessful()) {
                         CurrentWeather currentWeather = response.body();
                         remoteViews.setTextViewText(R.id.tvWidgetCity, currentCity);
-                        remoteViews.setTextViewText(R.id.tvWidgetTemp, String.valueOf(currentWeather.getMain().getTemp()));
+                        remoteViews.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp())+" C");
                         remoteViews.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
                         remoteViews.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
                         remoteViews.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));

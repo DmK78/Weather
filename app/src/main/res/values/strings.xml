@@ -4,4 +4,14 @@
     <string name="widget_text">Погода в</string>
     <string name="updating">updating</string>
     <string name="current_city">CurrentCity</string>
+    <string name="temperature">Температура</string>
+    <string name="pressure">Давление</string>
+    <string name="wind">Ветер</string>
+    <string name="windspeed">Скорость ветра</string>
+    <string name="direction">Направление</string>
+    <string name="minimun">минимум</string>
+    <string name="humidity">Влажность:</string>
+    <string name="date">Дата</string>
+    <string name="time">Время</string>
+    <string name="description">описание</string>
 </resources>

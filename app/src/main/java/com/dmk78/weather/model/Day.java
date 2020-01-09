@@ -5,15 +5,13 @@ import java.util.Objects;
 
 public class Day {
 
-/*    public Day() {
-        String tmp = dt_txt;
-        dt_txt=tmp.substring(9, 10) + "." + tmp.substring(6, 7) + "." + tmp.substring(0, 4);
-    }*/
 
     private Main main;
     private List<Weather> weather;
     private Wind wind;
     private String dt_txt;
+    private String date;
+    private String time;
 
     public Main getMain() {
         return main;
@@ -45,6 +43,22 @@ public class Day {
 
     public void setDt_txt(String dt_txt) {
         this.dt_txt = dt_txt;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     @Override

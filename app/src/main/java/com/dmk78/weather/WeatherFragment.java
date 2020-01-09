@@ -40,6 +40,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -49,24 +50,23 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class WeatherFragment extends Fragment implements LocationListener {
-
-    private TextView textViewCity;
     private double mLatitude;
     private double mLongitude;
-    private String key = "8f99535cdea446be868e707ba8062fc0";
-    private String units = "metric";
-    private String lang = "ru";
     private ConstraintLayout bg;
     private NetworkService networkService = NetworkService.getInstance();
-    private RecyclerView recycler;
-    public DaysAdapter adapter;
+    private RecyclerView recyclerDays;
+    private DaysAdapter adapterDays;
+    private RecyclerView recyclerHours;
+    private HoursAdapter adapterHours;
     private List<Day> days = new ArrayList<>();
+    private List<Day> hours = new ArrayList<>();
     private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
-            textViewWindSpeed;
+            textViewWindSpeed, textViewHumidity, textViewCity;
     private CurrentWeather currentWeather;
     private PlacePreferences placePreferences;
     private String currentCity;
+    private LocationService locationService;
     private final int REQUEST_LOCATION_PERMISSION = 1;
     private FiveDaysWeather fiveDaysWeather;
 
@@ -76,7 +76,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
         bindAllViews(view);
-
+        locationService = new LocationService(getContext(), WeatherFragment.this);
         placePreferences = new PlacePreferences(getContext());
         imageViewGetCurrentLocation.setOnClickListener(this::getCoord);
         currentCity = placePreferences.getPlaceName();
@@ -86,7 +86,11 @@ public class WeatherFragment extends Fragment implements LocationListener {
             mLongitude = placePreferences.getLng();
             getWeatherByCoord(mLatitude, mLongitude);
         } else {
-            getCoord(getView());
+            Location location = locationService.getCoord();
+            if(location!=null){
+
+                getWeatherByCoord(location.getLatitude(),location.getLongitude());
+            }
         }
 
 
@@ -112,9 +116,10 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 Log.i(WeatherFragment.class.getName(), "An error occurred: " + status);
             }
         });
-        //getAllDays("Dubai");
-        recycler = view.findViewById(R.id.resyclerDays);
-        this.recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerDays = view.findViewById(R.id.resyclerDays);
+        this.recyclerDays.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerHours = view.findViewById(R.id.recyclerHours);
+        this.recyclerHours.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
 
         return view;
@@ -148,13 +153,14 @@ public class WeatherFragment extends Fragment implements LocationListener {
         textViewPressure = view.findViewById(R.id.textViewPressure);
         textViewWeatherDesc = view.findViewById(R.id.textViewWeatherDesc);
         textViewWindSpeed = view.findViewById(R.id.textViewWindSpeed);
+        textViewHumidity = view.findViewById(R.id.textViewHumidity);
         imageViewGetCurrentLocation = view.findViewById(R.id.imageViewGetLocation);
         imageViewWind = view.findViewById(R.id.imageViewWind);
         bg = view.findViewById(R.id.bgMain);
     }
 
     private void getCoord(View view) {
-        checkLocPermissions();
+        locationService.checkLocPermissions();
         currentCity = "";
 
         LocationManager lm = (LocationManager) Objects.requireNonNull(getActivity())
@@ -180,7 +186,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
 
 
     private void getWeatherByCoord(double mLatitude, double mLongitude) {
-        networkService.getJSONApi().getCurrentWeatherByCoord(mLatitude, mLongitude, key, units, lang).enqueue(new Callback<CurrentWeather>() {
+        networkService.getJSONApi().getCurrentWeatherByCoord(mLatitude, mLongitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                 if (response.isSuccessful()) {
@@ -204,7 +210,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
     private void getWeatherByCityName(final String city) {
-        networkService.getJSONApi().getCurrentWeatherByCity(city, key, units, lang)
+        networkService.getJSONApi().getCurrentWeatherByCity(city, Constants.key, Constants.units, Constants.lang)
                 .enqueue(new Callback<CurrentWeather>() {
                     @Override
                     public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
@@ -228,27 +234,31 @@ public class WeatherFragment extends Fragment implements LocationListener {
         Date date = new Date();
         date.setTime((long) currentWeather.getDt() * 1000);
         SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy");
-        textViewCity.setText(formatForDateNow.format(date) + " " + currentWeather.getCityName() + ", " + this.currentWeather.getSys().getCountry());
+        textViewCity.setText(formatForDateNow.format(date) + "\n" + currentWeather.getCityName() + ", " + this.currentWeather.getSys().getCountry());
         textViewTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getTemp())) + " C");
         textViewMinTemp.setText(String.valueOf(Math.round(this.currentWeather.getMain().getMinTemp())) + " C");
-        textViewPressure.setText(String.valueOf(this.currentWeather.getMain().getPressure()));
+        textViewPressure.setText(String.valueOf(Math.round(this.currentWeather.getMain().getPressure())) + " мм");
         textViewWeatherDesc.setText(this.currentWeather.getWeather().get(0).getDescription());
-        textViewWindSpeed.setText(String.valueOf(this.currentWeather.getWind().getSpeed()) + "m/s");
+        textViewWindSpeed.setText(String.valueOf(this.currentWeather.getWind().getSpeed()) + " m/s");
+        textViewHumidity.setText(getString(R.string.humidity) + " " + String.valueOf(Math.round(currentWeather.getMain().getHumidity())) + " %");
         imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(this.currentWeather.getWeather().get(0).getIcon()));
         imageViewWind.animate().rotation(this.currentWeather.getWind().getDegree()).setDuration(1000).start();
         bg.setBackgroundResource(BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
+
 
     }
 
 
     private void getAllDays(String city) {
-        networkService.getJSONApi().getFiveDaysWeather(mLatitude, mLongitude, key, units, lang)
+        networkService.getJSONApi().getFiveDaysWeather(mLatitude, mLongitude, Constants.key, Constants.units, Constants.lang)
                 .enqueue(new Callback<FiveDaysWeather>() {
                     @Override
                     public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
                         if (response.isSuccessful()) {
                             fiveDaysWeather = response.body();
-                            fillDaysList(fiveDaysWeather.getList());
+                            fiveDaysWeather.calculateDateTime();
+                            fillDaysList(fiveDaysWeather.getDays());
+                            fillHoursList(fiveDaysWeather.getDays());
                         } else {
                             Toast.makeText(getContext(), String.format("Error code is: %s", response.code()), Toast.LENGTH_SHORT).show();
                             Log.i("MyError", "" + response.code());
@@ -264,11 +274,26 @@ public class WeatherFragment extends Fragment implements LocationListener {
 
     }
 
+    private void fillHoursList(List<Day> days) {
+        this.hours.clear();
+        this.hours.addAll(getWeatherFor24Hours(days));
+        adapterHours = new HoursAdapter(this.hours, getContext());
+        recyclerHours.setAdapter(adapterHours);
+    }
+
+    private List<Day> getWeatherFor24Hours(List<Day> days) {
+        List<Day> result = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            result.add(days.get(i));
+        }
+        return result;
+    }
+
     private void fillDaysList(List<Day> days) {
         this.days.clear();
         this.days.addAll(convertToShort(days));
-        adapter = new DaysAdapter(this.days, getContext());
-        recycler.setAdapter(adapter);
+        adapterDays = new DaysAdapter(this.days, getContext());
+        recyclerDays.setAdapter(adapterDays);
     }
 
     /**
@@ -320,8 +345,6 @@ public class WeatherFragment extends Fragment implements LocationListener {
             }
 
         }
-
-
 
 
         return result;
