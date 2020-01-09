@@ -1,12 +1,9 @@
 package com.dmk78.weather;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -40,10 +37,8 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,6 +47,7 @@ import retrofit2.Response;
 public class WeatherFragment extends Fragment implements LocationListener {
     private double mLatitude;
     private double mLongitude;
+    private Location currentLocation;
     private ConstraintLayout bg;
     private NetworkService networkService = NetworkService.getInstance();
     private RecyclerView recyclerDays;
@@ -77,8 +73,9 @@ public class WeatherFragment extends Fragment implements LocationListener {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
         bindAllViews(view);
         locationService = new LocationService(getContext(), WeatherFragment.this);
+        locationService.checkLocPermissions();
         placePreferences = new PlacePreferences(getContext());
-        imageViewGetCurrentLocation.setOnClickListener(this::getCoord);
+        imageViewGetCurrentLocation.setOnClickListener(this::getWeatherByLocation);
         currentCity = placePreferences.getPlaceName();
 
         if (currentCity != "") {
@@ -86,11 +83,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
             mLongitude = placePreferences.getLng();
             getWeatherByCoord(mLatitude, mLongitude);
         } else {
-            Location location = locationService.getCoord();
-            if(location!=null){
-
-                getWeatherByCoord(location.getLatitude(),location.getLongitude());
-            }
+            getWeatherByLocation(view);
         }
 
 
@@ -105,7 +98,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
                 mLatitude = pos.latitude;
                 mLongitude = pos.longitude;
                 currentCity = place.getName();
-                search.setText(null);
+                search.setText("");
                 getWeatherByCoord(mLatitude, mLongitude);
 
 
@@ -125,25 +118,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
         return view;
     }
 
-    private void checkLocPermissions() {
 
-        if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-        }
-
-
-    }
 
     private void bindAllViews(View view) {
         imageViewCurrentTemp = view.findViewById(R.id.imageViewCurrent);
@@ -159,30 +134,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
         bg = view.findViewById(R.id.bgMain);
     }
 
-    private void getCoord(View view) {
-        locationService.checkLocPermissions();
-        currentCity = "";
 
-        LocationManager lm = (LocationManager) Objects.requireNonNull(getActivity())
-                .getSystemService(Context.LOCATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-            }
-        }
-        if (lm != null) {
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, this);
-            if (location != null) {
-                mLatitude = location.getLatitude();
-                mLongitude = location.getLongitude();
-
-                getWeatherByCoord(mLatitude, mLongitude);
-
-            }
-        }
-    }
 
 
     private void getWeatherByCoord(double mLatitude, double mLongitude) {
@@ -209,26 +161,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
         });
     }
 
-    private void getWeatherByCityName(final String city) {
-        networkService.getJSONApi().getCurrentWeatherByCity(city, Constants.key, Constants.units, Constants.lang)
-                .enqueue(new Callback<CurrentWeather>() {
-                    @Override
-                    public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
-                        if (response.isSuccessful()) {
-                            currentWeather = response.body();
-                            currentCity = city;
-                            renderCurrentWeather(currentWeather);
-                            savePreferences();
-                            // getAllDays(currentWeather.getCityName());
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<CurrentWeather> call, Throwable t) {
-
-                    }
-                });
-    }
 
     private void renderCurrentWeather(CurrentWeather currentWeather) {
         Date date = new Date();
@@ -351,7 +284,7 @@ public class WeatherFragment extends Fragment implements LocationListener {
     }
 
     private void savePreferences() {
-        placePreferences.savePlace(currentCity, mLatitude, mLongitude);
+        placePreferences.savePlace(currentWeather.getCityName(), mLatitude, mLongitude);
     }
 
 
@@ -375,5 +308,15 @@ public class WeatherFragment extends Fragment implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    private void getWeatherByLocation(View view){
+        Location location = locationService.getCoord();
+        if(location!=null){
+            currentCity="";
+mLatitude=location.getLatitude();
+mLongitude=location.getLongitude();
+            getWeatherByCoord(mLatitude,mLongitude);
+        }
     }
 }

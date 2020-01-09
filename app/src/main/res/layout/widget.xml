@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widgetBg"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
 
-    android:background="@drawable/widget_bg"
+    android:background="@color/colorPrimaryDark"
     android:gravity="center|center_horizontal|center_vertical"
     android:orientation="vertical"
     android:padding="5dp">
@@ -22,7 +22,7 @@
             android:id="@+id/tvWidgetCity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="City"
+            android:text="@string/city"
             android:textAlignment="center"
             android:textColor="@color/cardview_light_background"
             android:textSize="18sp"
@@ -46,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="- 15 C"
+                    android:text="@string/temperature"
                     android:textAlignment="center"
                     android:textColor="@android:color/holo_red_dark"
                     android:textSize="18sp"
@@ -58,10 +58,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="desc"
+                    android:text="@string/description"
                     android:textAlignment="center"
                     android:textColor="@android:color/background_light"
-                    android:textSize="12sp" />
+                    android:textSize="10sp" />
 
             </LinearLayout>
 

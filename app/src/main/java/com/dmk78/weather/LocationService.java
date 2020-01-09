@@ -50,7 +50,6 @@ public class LocationService implements LocationListener{
     public Location getCoord() {
         Location result = null;
         checkLocPermissions();
-        //currentCity = "";
         LocationManager lm = (LocationManager) Objects.requireNonNull(fragment.getActivity())
                 .getSystemService(Context.LOCATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -62,13 +61,6 @@ public class LocationService implements LocationListener{
         if (lm != null) {
              result = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10,  this);
-            /*if (location != null) {
-                mLatitude = location.getLatitude();
-                mLongitude = location.getLongitude();
-
-                getWeatherByCoord(mLatitude, mLongitude);
-
-            }*/
         }
         return result;
     }
