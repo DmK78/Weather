@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.location.Location;
 import android.os.Bundle;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +17,16 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.dmk78.weather.adapters.DaysAdapter;
+import com.dmk78.weather.adapters.HoursAdapter;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
+import com.dmk78.weather.utils.BgColorSetter;
+import com.dmk78.weather.utils.LocationService;
+import com.dmk78.weather.utils.PlacePreferences;
+import com.dmk78.weather.utils.Utils;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -40,6 +46,7 @@ public class WeatherFragment extends Fragment {
     private RecyclerView recyclerDays;
     private DaysAdapter adapterDays;
     private RecyclerView recyclerHours;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private HoursAdapter adapterHours;
     private List<Day> days = new ArrayList<>();
     private List<Day> hours = new ArrayList<>();
@@ -55,21 +62,15 @@ public class WeatherFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
-        locationService = new LocationService(getContext(),this);
+        locationService = new LocationService(getContext(), this);
         locationService.checkLocPermissions();
         presenter = new WeatherPresenter(this);
         bindAllViews(view);
         placePreferences = new PlacePreferences(getContext());
-     /*   Place currentPlace = placePreferences.getPlace();
-        if (!TextUtils.isEmpty(currentPlace.getName())) {
-            presenter.getWeatherByPlace(currentPlace);
-        } else {
-            findByGeoSelected();
-        }*/
         imageViewGetCurrentLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                findByGeoSelected();
+                getWeatherByGeo();
             }
         });
 
@@ -94,15 +95,23 @@ public class WeatherFragment extends Fragment {
         recyclerHours.setAdapter(adapterHours);
         adapterDays = new DaysAdapter(this.days, getContext());
         recyclerDays.setAdapter(adapterDays);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.getWeatherByPlace(placePreferences.getPlace());
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         return view;
     }
 
-    private void findByGeoSelected() {
+    private void getWeatherByGeo() {
         Location location = locationService.getCoord();
-        Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(),location.getLongitude())).build();
-        placePreferences.savePlace(place);
-        presenter.getWeatherByPlace(place);
-
+        if (location != null) {
+            Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
+            placePreferences.savePlace(place);
+            presenter.getWeatherByPlace(place);
+        }
 
     }
 
@@ -110,14 +119,11 @@ public class WeatherFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Place currentPlace = placePreferences.getPlace();
-
-            presenter.getWeatherByPlace(currentPlace);
-
-
-
+        presenter.getWeatherByPlace(currentPlace);
     }
 
     private void bindAllViews(View view) {
+        swipeRefreshLayout = view.findViewById(R.id.swipe);
         imageViewCurrentTemp = view.findViewById(R.id.imageViewCurrent);
         textViewCity = view.findViewById(R.id.textViewCurrentCity);
         textViewTemp = view.findViewById(R.id.textViewCurrentTemp);
@@ -132,7 +138,6 @@ public class WeatherFragment extends Fragment {
         recyclerDays = view.findViewById(R.id.resyclerDays);
         recyclerHours = view.findViewById(R.id.recyclerHours);
     }
-
 
     public void renderCurrentWeather(CurrentWeather weather) {
         Date date = new Date();
@@ -150,7 +155,6 @@ public class WeatherFragment extends Fragment {
         bg.setBackgroundResource(BgColorSetter.set(weather.getMain().getMaxTemp()));
     }
 
-
     public void setDaysAdapterData(List<Day> days) {
         adapterDays.setData(days);
     }
@@ -160,7 +164,7 @@ public class WeatherFragment extends Fragment {
     }
 
     public void showProgress() {
-        if(progressDialog==null) {
+        if (progressDialog == null) {
             progressDialog = ProgressDialog.show(getContext(), "", getString(R.string.please_wait));
         }
     }
@@ -168,9 +172,7 @@ public class WeatherFragment extends Fragment {
     public void hideProgress() {
         if (progressDialog != null) {
             progressDialog.dismiss();
-            progressDialog=null;
+            progressDialog = null;
         }
     }
-
-
 }

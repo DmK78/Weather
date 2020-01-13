@@ -1,4 +1,4 @@
-package com.dmk78.weather;
+package com.dmk78.weather.utils;
 
 import android.Manifest;
 import android.app.Activity;

@@ -1,4 +1,4 @@
-package com.dmk78.weather;
+package com.dmk78.weather.widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -8,6 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
+import com.dmk78.weather.utils.BgColorSetter;
+import com.dmk78.weather.utils.Constants;
+import com.dmk78.weather.utils.PlacePreferences;
+import com.dmk78.weather.R;
+import com.dmk78.weather.utils.Utils;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.network.NetworkService;
 

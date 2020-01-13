@@ -16,4 +16,8 @@
     <string name="description">описание</string>
     <string name="city">City</string>
     <string name="please_wait">Загрузка</string>
+    <string name="weather_for_five_days">Погода на 5 суток</string>
+    <string name="weather_for_hours">Погода по часам</string>
+    <string name="weather">погода</string>
+    <string name="search">поиск</string>
 </resources>

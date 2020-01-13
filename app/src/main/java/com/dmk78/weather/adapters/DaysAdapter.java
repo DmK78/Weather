@@ -1,4 +1,4 @@
-package com.dmk78.weather;
+package com.dmk78.weather.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.dmk78.weather.utils.BgColorSetter;
+import com.dmk78.weather.R;
+import com.dmk78.weather.utils.Utils;
 import com.dmk78.weather.model.Day;
 
 import java.util.List;

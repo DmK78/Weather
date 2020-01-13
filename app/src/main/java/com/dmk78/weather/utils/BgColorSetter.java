@@ -1,4 +1,6 @@
-package com.dmk78.weather;
+package com.dmk78.weather.utils;
+
+import com.dmk78.weather.R;
 
 public class BgColorSetter {
     public static int set(float temp) {

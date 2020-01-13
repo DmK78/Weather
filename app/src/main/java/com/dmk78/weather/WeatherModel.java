@@ -3,11 +3,11 @@ package com.dmk78.weather;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.network.NetworkService;
+import com.dmk78.weather.utils.Constants;
 import com.google.android.libraries.places.api.model.Place;
 
 import retrofit2.Call;
