@@ -13,7 +13,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class WeatherModel implements WeatherContract.WeatherModel {
-    NetworkService networkService = NetworkService.getInstance();
+    NetworkService networkService;
+
+    public WeatherModel(NetworkService networkService) {
+        this.networkService = networkService;
+    }
 
     @Override
     public CurrentWeather getCurWeather(Place place) {
