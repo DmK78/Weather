@@ -1,5 +1,7 @@
 package com.dmk78.weather;
 
+import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,24 +15,37 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class WeatherModel implements WeatherContract.WeatherModel {
-    NetworkService networkService;
+    private NetworkService networkService;
+    private ModelInterface callback;
+    private Context context;
+    private static WeatherModel instance;
 
-    public WeatherModel(NetworkService networkService) {
+    private WeatherModel(NetworkService networkService, ModelInterface callback) {
         this.networkService = networkService;
+        this.callback = callback;
+    }
+
+    public static WeatherModel getInstance(ModelInterface modelInterface) {
+        if (instance == null) {
+            instance = new WeatherModel(NetworkService.getInstance(), modelInterface);
+
+        }
+        return instance;
     }
 
     @Override
-    public CurrentWeather getCurWeather(Place place) {
-        final CurrentWeather[] result = {null};
-        networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
+    public void getCurWeather(Place place) {
+
+        networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude,
+                place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                 if (response.isSuccessful()) {
-                    result[0] = response.body();
-                    if (place.getName().equals("")) {
-                    } else {
-                        result[0].setCityName(place.getName());
+                    CurrentWeather result = response.body();
+                    if (!TextUtils.isEmpty(place.getName())) {
+                        result.setCityName(place.getName());
                     }
+                    callback.getCurWeather(result);
                     getFiveFaysWeather(place);
                 }
             }
@@ -39,20 +54,21 @@ public class WeatherModel implements WeatherContract.WeatherModel {
             public void onFailure(Call<CurrentWeather> call, Throwable t) {
             }
         });
-        return result[0];
+
     }
 
     @Override
-    public FiveDaysWeather getFiveFaysWeather(Place place) {
-        final FiveDaysWeather[] result = {null};
+    public void getFiveFaysWeather(Place place) {
+
         networkService.getJSONApi().getFiveDaysWeather(place.getLatLng().latitude,
                 place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang)
                 .enqueue(new Callback<FiveDaysWeather>() {
                     @Override
                     public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
                         if (response.isSuccessful()) {
-                            result[0] = response.body();
-                            result[0].calculateDateTime();
+                            FiveDaysWeather result = response.body();
+                            result.calculateDateTime();
+                            callback.getFiveDaysWeather(result);
 
                         } else {
                             Log.i("MyError", "" + response.code());
@@ -66,7 +82,12 @@ public class WeatherModel implements WeatherContract.WeatherModel {
                 });
 
 
-        return null;
+    }
+
+    public interface ModelInterface {
+        public void getCurWeather(CurrentWeather currentWeather);
+
+        public void getFiveDaysWeather(FiveDaysWeather fiveDaysWeather);
     }
 
 

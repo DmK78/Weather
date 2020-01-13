@@ -6,11 +6,11 @@ import com.google.android.libraries.places.api.model.Place;
 
 public interface WeatherContract {
     interface WeatherModel{
-        public CurrentWeather getCurWeather(Place place);
-        public FiveDaysWeather getFiveFaysWeather(Place place);
+        public void getCurWeather(Place place);
+        public void getFiveFaysWeather(Place place);
     }
     interface WeatherPresenter{
-        public void placeWasSelected(Place place);
-        public void geoLocWasClicked();
+        public void getWeatherByPlace(Place place);
+
     }
 }

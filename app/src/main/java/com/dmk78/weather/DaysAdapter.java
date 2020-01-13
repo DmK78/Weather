@@ -25,6 +25,7 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
         inflater = LayoutInflater.from(context);
     }
 
+
     @NonNull
     @Override
     public DayHolder onCreateViewHolder(@NonNull final ViewGroup parent, int i) {

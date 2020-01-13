@@ -1,15 +1,16 @@
 package com.dmk78.weather;
 
+import android.app.ProgressDialog;
 import android.location.Location;
 import android.os.Bundle;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,9 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dmk78.weather.model.CurrentWeather;
-import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.model.Day;
-import com.dmk78.weather.network.NetworkService;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -35,13 +34,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class WeatherFragment extends Fragment {
     private ConstraintLayout bg;
-    private NetworkService networkService = NetworkService.getInstance();
+    private WeatherPresenter presenter;
     private RecyclerView recyclerDays;
     private DaysAdapter adapterDays;
     private RecyclerView recyclerHours;
@@ -51,27 +46,33 @@ public class WeatherFragment extends Fragment {
     private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
             textViewWindSpeed, textViewHumidity, textViewCity;
-    //private CurrentWeather currentWeather;
     private PlacePreferences placePreferences;
+    private ProgressDialog progressDialog;
     private LocationService locationService;
-    private FiveDaysWeather fiveDaysWeather;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
-        bindAllViews(view);
-        locationService = new LocationService(getContext(), WeatherFragment.this);
+        locationService = new LocationService(getContext(),this);
         locationService.checkLocPermissions();
+        presenter = new WeatherPresenter(this);
+        bindAllViews(view);
         placePreferences = new PlacePreferences(getContext());
-        imageViewGetCurrentLocation.setOnClickListener(this::getWeatherByLocation);
-        Place currentPlace = placePreferences.getPlace();
-        if (!currentPlace.getName().isEmpty()) {
-            getWeatherByCoord(currentPlace);
+     /*   Place currentPlace = placePreferences.getPlace();
+        if (!TextUtils.isEmpty(currentPlace.getName())) {
+            presenter.getWeatherByPlace(currentPlace);
         } else {
-            getWeatherByLocation(view);
-        }
+            findByGeoSelected();
+        }*/
+        imageViewGetCurrentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findByGeoSelected();
+            }
+        });
+
         Places.initialize(getContext(), getString(R.string.google_maps_key));
         AutocompleteSupportFragment search = (AutocompleteSupportFragment)
                 this.getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
@@ -79,9 +80,9 @@ public class WeatherFragment extends Fragment {
         search.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                getWeatherByCoord(place);
+                placePreferences.savePlace(place);
+                presenter.getWeatherByPlace(place);
             }
-
             @Override
             public void onError(Status status) {
                 Log.i(WeatherFragment.class.getName(), "An error occurred: " + status);
@@ -89,9 +90,32 @@ public class WeatherFragment extends Fragment {
         });
         this.recyclerDays.setLayoutManager(new LinearLayoutManager(getContext()));
         this.recyclerHours.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        adapterHours = new HoursAdapter(this.hours, getContext());
+        recyclerHours.setAdapter(adapterHours);
+        adapterDays = new DaysAdapter(this.days, getContext());
+        recyclerDays.setAdapter(adapterDays);
         return view;
     }
 
+    private void findByGeoSelected() {
+        Location location = locationService.getCoord();
+        Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(),location.getLongitude())).build();
+        placePreferences.savePlace(place);
+        presenter.getWeatherByPlace(place);
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Place currentPlace = placePreferences.getPlace();
+
+            presenter.getWeatherByPlace(currentPlace);
+
+
+
+    }
 
     private void bindAllViews(View view) {
         imageViewCurrentTemp = view.findViewById(R.id.imageViewCurrent);
@@ -110,31 +134,7 @@ public class WeatherFragment extends Fragment {
     }
 
 
-    private void getWeatherByCoord(Place place) {
-        networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
-            @Override
-            public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
-                CurrentWeather result = null;
-                if (response.isSuccessful()) {
-                    result = response.body();
-                    Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
-                    if (place.getName().equals("")) {
-                    } else {
-                        result.setCityName(place.getName());
-                    }
-                    renderCurrentWeather(result);
-                    placePreferences.savePlace(place);
-                    getAllDays(place);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CurrentWeather> call, Throwable t) {
-            }
-        });
-    }
-
-    private void renderCurrentWeather(CurrentWeather weather) {
+    public void renderCurrentWeather(CurrentWeather weather) {
         Date date = new Date();
         date.setTime((long) weather.getDt() * 1000);
         SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy EEE");
@@ -151,154 +151,26 @@ public class WeatherFragment extends Fragment {
     }
 
 
-    private void getAllDays(Place place) {
-        networkService.getJSONApi().getFiveDaysWeather(place.getLatLng().latitude,
-                place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang)
-                .enqueue(new Callback<FiveDaysWeather>() {
-                    @Override
-                    public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
-                        if (response.isSuccessful()) {
-                            fiveDaysWeather = response.body();
-                            fiveDaysWeather.calculateDateTime();
-                            fillDaysList(fiveDaysWeather.getDays());
-                            fillHoursList(fiveDaysWeather.getDays());
-                        } else {
-                            Toast.makeText(getContext(), String.format("Error code is: %s", response.code()), Toast.LENGTH_SHORT).show();
-                            Log.i("MyError", "" + response.code());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<FiveDaysWeather> call, Throwable t) {
-                        Toast.makeText(getContext(), String.format("Error code is: %s", t.getMessage()), Toast.LENGTH_SHORT).show();
-                        Log.i("MyError", "" + t.getMessage());
-                    }
-                });
+    public void setDaysAdapterData(List<Day> days) {
+        adapterDays.setData(days);
     }
 
-    private void fillHoursList(List<Day> days) {
-        this.hours.clear();
-        this.hours.addAll(getWeatherFor24Hours(days));
-        adapterHours = new HoursAdapter(this.hours, getContext());
-        recyclerHours.setAdapter(adapterHours);
+    public void setHoursAdapterData(List<Day> days) {
+        adapterHours.setData(days);
     }
 
-    private List<Day> getWeatherFor24Hours(List<Day> days) {
-        List<Day> result = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            result.add(days.get(i));
-        }
-        return result;
-    }
-
-    private void fillDaysList(List<Day> days) {
-        this.days.clear();
-        this.days.addAll(convertToShort(days));
-        adapterDays = new DaysAdapter(this.days, getContext());
-        recyclerDays.setAdapter(adapterDays);
-    }
-
-    /**
-     * метод обрезает дату
-     *
-     * @param data
-     * @return
-     */
-    private String convertData(String data) {
-        String result = data.substring(8, 10) + "." + data.substring(5, 7) + "." + data.substring(0, 4);
-        return result;
-    }
-
-    /**
-     * метод группирует дни по дате, вычисляет минимальную и максимальнут температуру
-     *
-     * @param days
-     * @return
-     */
-    private List<Day> convertToShort(List<Day> days) {
-        String baseData = days.get(0).getDate();
-        float minTemp = +100;
-        float maxTemp = -100;
-        List<Day> result = new ArrayList<>();
-
-        for (int i = 0; i < days.size(); i++) {
-            Day day = days.get(i);
-            String tmp = day.getDate();
-            day.setDate(tmp);
-            if (day.getDate().equals(baseData)) {
-                if (day.getMain().getMinTemp() < minTemp) {
-                    minTemp = day.getMain().getMinTemp();
-                }
-                if (day.getMain().getMaxTemp() > maxTemp) {
-                    maxTemp = day.getMain().getMaxTemp();
-                }
-
-                continue;
-            } else {
-                Day dayPrev = days.get(i - 1);
-                baseData = day.getDate();
-                dayPrev.getMain().setMaxTemp(maxTemp);
-                dayPrev.getMain().setMinTemp(minTemp);
-                maxTemp = -100;
-                minTemp = +100;
-                result.add(dayPrev);
-            }
-
-        }
-
-
-        return result;
-
-
-
-
-
-
-
-
-
-
-        /*String baseData = convertData(days.get(0).getDt_txt());
-        float minTemp = +100;
-        float maxTemp = -100;
-        List<Day> result = new ArrayList<>();
-
-        for (int i = 0; i < days.size(); i++) {
-            Day day = days.get(i);
-            Log.i("days", day.getDt_txt());
-            String tmp = convertData(day.getDt_txt());
-            day.setDt_txt(tmp);
-            if (day.getDt_txt().equals(baseData)) {
-                if (day.getMain().getMinTemp() < minTemp) {
-                    minTemp = day.getMain().getMinTemp();
-                }
-                if (day.getMain().getMaxTemp() > maxTemp) {
-                    maxTemp = day.getMain().getMaxTemp();
-                }
-
-                continue;
-            } else {
-                Day dayPrev = days.get(i - 1);
-                baseData = day.getDt_txt();
-                dayPrev.getMain().setMaxTemp(maxTemp);
-                dayPrev.getMain().setMinTemp(minTemp);
-                maxTemp = -100;
-                minTemp = +100;
-                result.add(dayPrev);
-            }
-
-        }
-
-
-        return result;*/
-    }
-
-
-    private void getWeatherByLocation(View view) {
-        Location location = locationService.getCoord();
-        if (location != null) {
-            Place currentPlace = Place.builder().setName("").setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
-            getWeatherByCoord(currentPlace);
+    public void showProgress() {
+        if(progressDialog==null) {
+            progressDialog = ProgressDialog.show(getContext(), "", getString(R.string.please_wait));
         }
     }
+
+    public void hideProgress() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+            progressDialog=null;
+        }
+    }
+
+
 }

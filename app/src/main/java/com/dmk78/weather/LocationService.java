@@ -23,6 +23,7 @@ import java.util.Objects;
 public class LocationService implements LocationListener {
     private Context contex;
     private Fragment fragment;
+
     private final int REQUEST_LOCATION_PERMISSION = 1;
 
     public LocationService(Context contex, Fragment fragment) {
