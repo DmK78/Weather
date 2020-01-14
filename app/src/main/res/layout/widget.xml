@@ -25,8 +25,12 @@
             android:text="@string/city"
             android:textAlignment="center"
             android:textColor="@color/cardview_light_background"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            app:autoSizeMaxTextSize="30sp"
+            app:autoSizeMinTextSize="10sp"
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform"
+
+            />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,12 +60,17 @@
                     android:id="@+id/tvWidgetDesc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/description"
                     android:textAlignment="center"
+                    android:padding="1dp"
                     android:textColor="@android:color/background_light"
-                    android:textSize="12sp" />
+                    android:lineSpacingMultiplier="0.8"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="6sp"
+                    app:autoSizeMaxTextSize="10sp"
+                    app:autoSizeStepGranularity="1sp"
+                    />
 
             </LinearLayout>
 

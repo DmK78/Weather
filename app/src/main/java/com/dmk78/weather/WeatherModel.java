@@ -8,6 +8,7 @@ import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.network.NetworkService;
 import com.dmk78.weather.utils.Constants;
+import com.dmk78.weather.utils.PlacePreferences;
 import com.google.android.libraries.places.api.model.Place;
 
 import retrofit2.Call;
@@ -19,10 +20,12 @@ public class WeatherModel implements WeatherContract.WeatherModel {
     private ModelInterface callback;
     private Context context;
     private static WeatherModel instance;
+    private PlacePreferences placePreferences;
 
     private WeatherModel(NetworkService networkService, ModelInterface callback) {
         this.networkService = networkService;
         this.callback = callback;
+
     }
 
     public static WeatherModel getInstance(ModelInterface modelInterface) {
@@ -44,8 +47,10 @@ public class WeatherModel implements WeatherContract.WeatherModel {
                     CurrentWeather result = response.body();
                     if (!TextUtils.isEmpty(place.getName())) {
                         result.setCityName(place.getName());
+
                     }
-                    callback.getCurWeather(result);
+
+                    callback.getCurWeather(result,place);
                     getFiveFaysWeather(place);
                 }
             }
@@ -85,7 +90,7 @@ public class WeatherModel implements WeatherContract.WeatherModel {
     }
 
     public interface ModelInterface {
-        public void getCurWeather(CurrentWeather currentWeather);
+        public void getCurWeather(CurrentWeather currentWeather, Place place);
 
         public void getFiveDaysWeather(FiveDaysWeather fiveDaysWeather);
     }

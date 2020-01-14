@@ -109,7 +109,7 @@ public class WeatherFragment extends Fragment {
         Location location = locationService.getCoord();
         if (location != null) {
             Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
-            placePreferences.savePlace(place);
+            //placePreferences.savePlace(place);
             presenter.getWeatherByPlace(place);
         }
 

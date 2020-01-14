@@ -4,9 +4,10 @@
     android:id="@+id/hourBg"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="1dp"
-    android:orientation="vertical"
-    app:cardCornerRadius="5dp">
+    android:layout_margin="2dp"
+    android:orientation="horizontal"
+    app:cardCornerRadius="5dp"
+    app:contentPadding="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"

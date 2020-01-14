@@ -89,7 +89,9 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
 
 
     @Override
-    public void getCurWeather(CurrentWeather currentWeather) {
+    public void getCurWeather(CurrentWeather currentWeather, Place place) {
+
+        placePreferences.savePlace(place);
 
         view.renderCurrentWeather(currentWeather);
 
