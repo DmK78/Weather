@@ -49,8 +49,8 @@ public class WeatherModel implements WeatherContract.WeatherModel {
                         result.setCityName(place.getName());
 
                     }
-
-                    callback.getCurWeather(result,place);
+                    result.setLatLng(place.getLatLng());
+                    callback.getCurWeather(result);
                     getFiveFaysWeather(place);
                 }
             }
@@ -90,7 +90,7 @@ public class WeatherModel implements WeatherContract.WeatherModel {
     }
 
     public interface ModelInterface {
-        public void getCurWeather(CurrentWeather currentWeather, Place place);
+        public void getCurWeather(CurrentWeather currentWeather);
 
         public void getFiveDaysWeather(FiveDaysWeather fiveDaysWeather);
     }

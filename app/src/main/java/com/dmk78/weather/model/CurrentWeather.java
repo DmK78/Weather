@@ -1,5 +1,6 @@
 package com.dmk78.weather.model;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public class CurrentWeather {
     private Wind wind;
     private Sys sys;
     private Integer dt;
-
+    private LatLng latLng;
     @SerializedName("name")
     private String cityName;
 
@@ -42,6 +43,14 @@ public class CurrentWeather {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public LatLng getLatLng() {
+        return latLng;
+    }
+
+    public void setLatLng(LatLng latLng) {
+        this.latLng = latLng;
     }
 
     @Override
