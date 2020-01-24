@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,6 +85,7 @@ public class WeatherFragment extends Fragment {
             public void onPlaceSelected(Place place) {
                 placePreferences.savePlace(place);
                 presenter.getWeatherByPlace(place);
+
             }
 
             @Override
@@ -97,13 +99,14 @@ public class WeatherFragment extends Fragment {
         recyclerHours.setAdapter(adapterHours);
         adapterDays = new DaysAdapter(this.days, getContext());
         recyclerDays.setAdapter(adapterDays);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                presenter.getWeatherByPlace(placePreferences.getPlace());
-                swipeRefreshLayout.setRefreshing(false);
-            }
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            presenter.getWeatherByPlace(placePreferences.getPlace());
+            swipeRefreshLayout.setRefreshing(false);
         });
+        Place place = placePreferences.getPlace();
+        if(TextUtils.isEmpty(place.getName())){
+            getWeatherByGeo();
+        }
         return view;
     }
 

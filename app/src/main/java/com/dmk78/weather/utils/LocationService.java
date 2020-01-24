@@ -23,6 +23,7 @@ import java.util.Objects;
 public class LocationService implements LocationListener {
     private Context contex;
     private Fragment fragment;
+    private Location currentBestLocation = null;
 
     private final int REQUEST_LOCATION_PERMISSION = 1;
 
@@ -53,8 +54,45 @@ public class LocationService implements LocationListener {
 
     public Location getCoord() {
         Location result = null;
-        checkLocPermissions();
-        LocationManager lm = (LocationManager) Objects.requireNonNull(fragment.getActivity())
+        //checkLocPermissions();
+        LocationManager mLocationManager = (LocationManager) Objects.requireNonNull(fragment.getActivity())
+                .getSystemService(Context.LOCATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (fragment.getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && fragment.getActivity()
+                    .checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(fragment.getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION);
+                ActivityCompat.requestPermissions(fragment.getActivity(),
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION);
+            }
+        }
+        Location locationGPS = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location locationNet = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        long GPSLocationTime = 0;
+        if (null != locationGPS) { GPSLocationTime = locationGPS.getTime(); }
+
+        long NetLocationTime = 0;
+
+        if (null != locationNet) {
+            NetLocationTime = locationNet.getTime();
+        }
+
+        if ( 0 < GPSLocationTime - NetLocationTime ) {
+            result= locationGPS;
+        }
+        else {
+            result= locationNet;
+        }
+
+
+
+
+
+        /*LocationManager lm = (LocationManager) Objects.requireNonNull(fragment.getActivity())
                 .getSystemService(Context.LOCATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (fragment.getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -65,7 +103,7 @@ public class LocationService implements LocationListener {
         if (lm != null) {
              result = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10,  this);
-        }
+        }*/
         return result;
     }
 
