@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 
-public class PlacePreferences {
+public class PlacePreferences implements PlaceInterface{
     private SharedPreferences sharedPreferences;
     private Context context;
     private SharedPreferences.Editor editor;
@@ -23,6 +23,7 @@ public class PlacePreferences {
 
     }
 
+    @Override
     public void savePlace(Place place) {
         editor.putString(APP_PREFERENCES_PLACE, place.getName());
         editor.putFloat(APP_PREFERENCES_LAT,(float)place.getLatLng().latitude);
@@ -30,18 +31,8 @@ public class PlacePreferences {
         editor.commit();
     }
 
-    public String getPlaceName(){
-        return sharedPreferences.getString(APP_PREFERENCES_PLACE,"");
-    }
-    public double getLat(){
-        return (double) sharedPreferences.getFloat(APP_PREFERENCES_LAT,0);
-    }
-    public double getLng(){
-        return (double) sharedPreferences.getFloat(APP_PREFERENCES_LNG,0);
-    }
-
-
-    public Place getPlace(){
+    @Override
+    public Place loadPlace(){
         return Place.builder().setName(sharedPreferences.getString(APP_PREFERENCES_PLACE,"")).
                 setLatLng(new LatLng(sharedPreferences.getFloat(APP_PREFERENCES_LAT,0),
                         sharedPreferences.getFloat(APP_PREFERENCES_LNG,0))).build();

@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-public class MyLocationService implements LocationListener {
+public class MyLocationService implements LocationListener, MyLocationInterface {
     Context context;
     private Fragment fragment;
     private final int REQUEST_LOCATION_PERMISSION = 1;
@@ -60,8 +60,9 @@ public class MyLocationService implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
     }
-    @Nullable
 
+
+    @Override
     public Location getLocation() {
         checkLocPermissions();
         try {

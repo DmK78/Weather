@@ -5,11 +5,10 @@ import android.location.Location;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
+import com.dmk78.weather.utils.MyLocationInterface;
 import com.dmk78.weather.utils.MyLocationService;
+import com.dmk78.weather.utils.PlaceInterface;
 import com.dmk78.weather.utils.PlacePreferences;
-import com.dmk78.weather.weather.WeatherContract;
-import com.dmk78.weather.weather.WeatherFragment;
-import com.dmk78.weather.weather.WeatherModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 
@@ -19,8 +18,8 @@ import java.util.List;
 public class WeatherPresenter implements WeatherContract.WeatherPresenter, WeatherModel.ModelInterface {
     private WeatherContract.WeatherView view;
     private WeatherContract.WeatherModel model;
-    private MyLocationService locationService;
-    private PlacePreferences placePreferences;
+    private MyLocationInterface locationService;
+    private PlaceInterface placePreferences;
 
 
     public WeatherPresenter(WeatherFragment view) {
@@ -57,9 +56,9 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
     }
 
     @Override
-    public Place getLastavedPlace() {
+    public Place getLastSavedPlace() {
 
-        return placePreferences.getPlace();
+        return placePreferences.loadPlace();
     }
 
     public void fillHoursList(List<Day> days) {

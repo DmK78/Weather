@@ -8,7 +8,7 @@ import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.network.NetworkService;
 import com.dmk78.weather.utils.Constants;
-import com.dmk78.weather.utils.PlacePreferences;
+
 import com.google.android.libraries.places.api.model.Place;
 
 import retrofit2.Call;

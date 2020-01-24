@@ -24,7 +24,7 @@ import com.dmk78.weather.adapters.HoursAdapter;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.utils.BgColorSetter;
-import com.dmk78.weather.utils.PlacePreferences;
+
 import com.dmk78.weather.utils.Utils;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
@@ -83,7 +83,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         adapterDays = new DaysAdapter(this.days, getContext());
         recyclerDays.setAdapter(adapterDays);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            presenter.onGetWeatherByPlaceClicked(presenter.getLastavedPlace());
+            presenter.onGetWeatherByPlaceClicked(presenter.getLastSavedPlace());
             swipeRefreshLayout.setRefreshing(false);
         });
         return view;
@@ -92,7 +92,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     @Override
     public void onResume() {
         super.onResume();
-        Place place = presenter.getLastavedPlace();
+        Place place = presenter.getLastSavedPlace();
         if (TextUtils.isEmpty(place.getName())) {
             presenter.onGetWeatherByGeoClicked();
         } else presenter.onGetWeatherByPlaceClicked(place);

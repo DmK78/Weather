@@ -11,6 +11,7 @@ import android.widget.RemoteViews;
 
 import com.dmk78.weather.utils.BgColorSetter;
 import com.dmk78.weather.utils.Constants;
+import com.dmk78.weather.utils.PlaceInterface;
 import com.dmk78.weather.utils.PlacePreferences;
 import com.dmk78.weather.R;
 import com.dmk78.weather.utils.Utils;
@@ -35,13 +36,13 @@ public class WeatherWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.tvWidgetCity, context.getString(R.string.updating));
         appWidgetManager.updateAppWidget(appWidgetId, views);
         PlacePreferences placePreferences = new PlacePreferences(context);
-        Place place = placePreferences.getPlace();
+        Place place = placePreferences.loadPlace();
         String currentCity = place.getName();
         Log.i("city", String.valueOf(place.getName()));
         Log.i("city", String.valueOf(place.getLatLng().latitude));
         Log.i("city", String.valueOf(place.getLatLng().longitude));
-        double lat = placePreferences.getLat();
-        double lng = placePreferences.getLng();
+        double lat = placePreferences.loadPlace().getLatLng().latitude;
+        double lng = placePreferences.loadPlace().getLatLng().longitude;
         NetworkService networkService = NetworkService.getInstance();
         networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
@@ -116,10 +117,10 @@ public class WeatherWidget extends AppWidgetProvider {
             views.setTextViewText(R.id.tvWidgetCity, context.getString(R.string.updating));
             //updating widget
             appWidgetManager.updateAppWidget(watchWidget, views);
-            PlacePreferences placePreferences = new PlacePreferences(context);
-            String currentCity = placePreferences.getPlaceName();
-            double lat = placePreferences.getLat();
-            double lng = placePreferences.getLng();
+            PlaceInterface placePreferences = new PlacePreferences(context);
+            String currentCity = placePreferences.loadPlace().getName();
+            double lat = placePreferences.loadPlace().getLatLng().latitude;
+            double lng = placePreferences.loadPlace().getLatLng().longitude;
             NetworkService networkService = NetworkService.getInstance();
             networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
                 @Override

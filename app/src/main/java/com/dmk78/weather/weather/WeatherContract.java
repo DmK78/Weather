@@ -20,7 +20,7 @@ public interface WeatherContract {
 
         void onGetWeatherByPlaceClicked(Place place);
 
-        Place getLastavedPlace();
+        Place getLastSavedPlace();
 
     }
 
