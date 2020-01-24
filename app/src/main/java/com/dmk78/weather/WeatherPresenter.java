@@ -1,5 +1,7 @@
 package com.dmk78.weather;
 
+import android.content.Context;
+
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
@@ -105,4 +107,6 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
         view.hideProgress();
 
     }
+
+
 }

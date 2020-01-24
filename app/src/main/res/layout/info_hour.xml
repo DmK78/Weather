@@ -56,8 +56,21 @@
             android:fontFamily="cursive"
             android:text="@string/description"
             android:textAlignment="center"
+
+
             android:textColor="@android:color/black"
-            android:textSize="8sp"
-            android:textStyle="italic" />
+            android:textSize="12sp"
+            android:textStyle="italic"
+
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+
+
+
+            />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

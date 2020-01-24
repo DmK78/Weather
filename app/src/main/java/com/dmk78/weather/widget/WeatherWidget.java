@@ -50,7 +50,8 @@ public class WeatherWidget extends AppWidgetProvider {
                     CurrentWeather currentWeather = response.body();
                     views.setTextViewText(R.id.tvWidgetCity, currentCity);
                     views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp()) + " C");
-                    views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
+                    views.setImageViewResource(R.id.ivWidgetWeather, Utils.getStringIdentifier(context, "i" + currentWeather.getWeather().get(0).getIcon(), "drawable"));
+                    //holder.imageViewDayWeather.setImageResource(Utils.getStringIdentifier(context, "i" + day.getWeather().get(0).getIcon(), "drawable"));
                     views.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
                     views.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
                     //widget manager to update the widget
@@ -127,7 +128,8 @@ public class WeatherWidget extends AppWidgetProvider {
                         CurrentWeather currentWeather = response.body();
                         views.setTextViewText(R.id.tvWidgetCity, currentCity);
                         views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp()) + " C");
-                        views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
+                        //views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
+                        views.setImageViewResource(R.id.ivWidgetWeather, Utils.getStringIdentifier(context, "i" + currentWeather.getWeather().get(0).getIcon(), "drawable"));
                         views.setTextViewText(R.id.tvWidgetDesc, currentWeather.getWeather().get(0).getDescription());
                         views.setInt(R.id.widgetBg, "setBackgroundResource", BgColorSetter.set(currentWeather.getMain().getMaxTemp()));
 

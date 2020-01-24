@@ -1,6 +1,7 @@
 package com.dmk78.weather;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -84,6 +85,7 @@ public class WeatherFragment extends Fragment {
                 placePreferences.savePlace(place);
                 presenter.getWeatherByPlace(place);
             }
+
             @Override
             public void onError(Status status) {
                 Log.i(WeatherFragment.class.getName(), "An error occurred: " + status);
@@ -150,7 +152,8 @@ public class WeatherFragment extends Fragment {
         textViewWeatherDesc.setText(weather.getWeather().get(0).getDescription());
         textViewWindSpeed.setText(String.valueOf(weather.getWind().getSpeed()) + " m/s");
         textViewHumidity.setText(getString(R.string.humidity) + " " + String.valueOf(Math.round(weather.getMain().getHumidity())) + " %");
-        imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(weather.getWeather().get(0).getIcon()));
+        //imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(weather.getWeather().get(0).getIcon()));
+        imageViewCurrentTemp.setImageResource(Utils.getStringIdentifier(getContext(), "i" + weather.getWeather().get(0).getIcon(), "drawable"));
         imageViewWind.animate().rotation(weather.getWind().getDegree()).setDuration(1000).start();
         bg.setBackgroundResource(BgColorSetter.set(weather.getMain().getMaxTemp()));
     }
@@ -175,4 +178,6 @@ public class WeatherFragment extends Fragment {
             progressDialog = null;
         }
     }
+
+
 }

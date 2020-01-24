@@ -1,6 +1,7 @@
 package com.dmk78.weather.adapters;
 
 import android.content.Context;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,11 @@ import java.util.List;
 public class HoursAdapter extends RecyclerView.Adapter<HoursAdapter.HoursHolder> {
     private List<Day> days;
     private LayoutInflater inflater;
+    private Context context;
 
     public HoursAdapter(List<Day> days, Context context) {
         this.days = days;
+        this.context = context;
         inflater = LayoutInflater.from(context);
     }
 
@@ -47,7 +50,11 @@ public class HoursAdapter extends RecyclerView.Adapter<HoursAdapter.HoursHolder>
         holder.textViewTime.setText(day.getTime());
         holder.textViewTemp.setText(String.valueOf(Math.round(day.getMain().getTemp()))+" C");
         holder.textViewDesc.setText(String.valueOf(day.getWeather().get(0).getDescription()));
-        holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
+        holder.textViewDesc.setSelected(true);
+        //holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
+
+        holder.imageViewDayWeather.setImageResource(Utils.getStringIdentifier(context, "i" + day.getWeather().get(0).getIcon(), "drawable"));
+
         holder.bg.setBackgroundResource(BgColorSetter.set(Math.round(day.getMain().getMaxTemp())));
 
 

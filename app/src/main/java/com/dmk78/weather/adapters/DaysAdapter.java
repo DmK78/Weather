@@ -22,9 +22,11 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
 
     private List<Day> days;
     private LayoutInflater inflater;
+    private Context context;
 
     public DaysAdapter(List<Day> days, Context context) {
         this.days = days;
+        this.context = context;
         inflater = LayoutInflater.from(context);
     }
 
@@ -48,7 +50,10 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
         holder.textViewDate.setText(day.getDate());
         holder.textViewTempMax.setText(String.valueOf(Math.round(day.getMain().getMaxTemp()))+" C");
         holder.textViewTempMin.setText(String.valueOf(Math.round(day.getMain().getMinTemp()))+" C");
-        holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
+        //holder.imageViewDayWeather.setImageResource(Utils.convertIconSourceToId(day.getWeather().get(0).getIcon()));
+        holder.imageViewDayWeather.setImageResource(Utils.getStringIdentifier(context, "i" + day.getWeather().get(0).getIcon(), "drawable"));
+
+
 
         holder.bg.setBackgroundResource(BgColorSetter.set(Math.round(day.getMain().getMaxTemp())));
         

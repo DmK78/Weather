@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widgetBg"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
 
     android:background="@color/colorPrimaryDark"
     android:gravity="center|center_horizontal|center_vertical"
@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
+
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
@@ -24,64 +25,54 @@
             android:layout_height="wrap_content"
             android:text="@string/city"
             android:textAlignment="center"
-            android:textColor="@color/cardview_light_background"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
             app:autoSizeMaxTextSize="30sp"
             app:autoSizeMinTextSize="10sp"
-            app:autoSizeStepGranularity="1sp"
-            app:autoSizeTextType="uniform"
 
-            />
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvWidgetTemp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-
-
-                <TextView
-                    android:id="@+id/tvWidgetTemp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/temperature"
-                    android:textAlignment="center"
-                    android:textColor="@android:color/holo_red_dark"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvWidgetDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/description"
-                    android:textAlignment="center"
-                    android:padding="1dp"
-                    android:textColor="@android:color/background_light"
-                    android:lineSpacingMultiplier="0.8"
-                    app:autoSizeTextType="uniform"
-                    app:autoSizeMinTextSize="6sp"
-                    app:autoSizeMaxTextSize="10sp"
-                    app:autoSizeStepGranularity="1sp"
-                    />
-
-            </LinearLayout>
+                android:gravity="center"
+                android:text="@string/temperature"
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:autoSizeMaxTextSize="30sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeStepGranularity="1sp" />
 
             <ImageView
                 android:id="@+id/ivWidgetWeather"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 tools:srcCompat="@drawable/i01d" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvWidgetDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/description"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeMinTextSize="10sp"
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform" />
 
     </LinearLayout>
 
