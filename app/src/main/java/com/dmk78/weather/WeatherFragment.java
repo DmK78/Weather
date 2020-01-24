@@ -167,16 +167,18 @@ public class WeatherFragment extends Fragment {
     }
 
     public void showProgress() {
-        if (progressDialog == null) {
+        /*if (progressDialog == null) {
             progressDialog = ProgressDialog.show(getContext(), "", getString(R.string.please_wait));
-        }
+        }*/
+        swipeRefreshLayout.setRefreshing(true);
     }
 
     public void hideProgress() {
-        if (progressDialog != null) {
+        /*if (progressDialog != null) {
             progressDialog.dismiss();
             progressDialog = null;
-        }
+        }*/
+        swipeRefreshLayout.setRefreshing(false);
     }
 
 
