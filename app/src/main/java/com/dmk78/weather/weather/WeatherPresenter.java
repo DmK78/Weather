@@ -34,21 +34,12 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
 
 
     @Override
-    public void getWeatherByPlace(Place place) {
-        view.showProgress();
-
-        model.getCurWeather(place);
-    }
-
-    @Override
     public void onGetWeatherByGeoClicked() {
         Location location = locationService.getLocation();
 
         if (location != null) {
             Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
-
-
-            getWeatherByPlace(place);
+            onGetWeatherByPlaceClicked(place);
         }
     }
 

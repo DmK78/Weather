@@ -15,7 +15,6 @@ public interface WeatherContract {
     }
 
     interface WeatherPresenter {
-        void getWeatherByPlace(Place place);
 
         void onGetWeatherByGeoClicked();
 

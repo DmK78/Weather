@@ -83,7 +83,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         adapterDays = new DaysAdapter(this.days, getContext());
         recyclerDays.setAdapter(adapterDays);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            presenter.getWeatherByPlace(presenter.getLastavedPlace());
+            presenter.onGetWeatherByPlaceClicked(presenter.getLastavedPlace());
             swipeRefreshLayout.setRefreshing(false);
         });
         return view;
@@ -95,7 +95,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         Place place = presenter.getLastavedPlace();
         if (TextUtils.isEmpty(place.getName())) {
             presenter.onGetWeatherByGeoClicked();
-        } else presenter.getWeatherByPlace(place);
+        } else presenter.onGetWeatherByPlaceClicked(place);
     }
 
     private void bindAllViews(View view) {
