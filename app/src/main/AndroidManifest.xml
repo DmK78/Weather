@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity android:name=".weather.WeatherActivity"
             android:screenOrientation="portrait"
             tools:ignore="ExtraText">
 

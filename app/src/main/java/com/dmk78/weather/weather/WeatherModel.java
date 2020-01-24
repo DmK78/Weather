@@ -1,4 +1,4 @@
-package com.dmk78.weather;
+package com.dmk78.weather.weather;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -18,14 +18,11 @@ import retrofit2.Response;
 public class WeatherModel implements WeatherContract.WeatherModel {
     private NetworkService networkService;
     private ModelInterface callback;
-    private Context context;
     private static WeatherModel instance;
-    private PlacePreferences placePreferences;
 
     private WeatherModel(NetworkService networkService, ModelInterface callback) {
         this.networkService = networkService;
         this.callback = callback;
-
     }
 
     public static WeatherModel getInstance(ModelInterface modelInterface) {

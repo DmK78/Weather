@@ -1,43 +1,81 @@
-package com.dmk78.weather;
+package com.dmk78.weather.weather;
 
-import android.content.Context;
+import android.location.Location;
 
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
+import com.dmk78.weather.utils.MyLocationService;
 import com.dmk78.weather.utils.PlacePreferences;
+import com.dmk78.weather.weather.WeatherContract;
+import com.dmk78.weather.weather.WeatherFragment;
+import com.dmk78.weather.weather.WeatherModel;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class WeatherPresenter implements WeatherContract.WeatherPresenter, WeatherModel.ModelInterface {
-    private WeatherFragment view;
-    private WeatherModel model;
+    private WeatherContract.WeatherView view;
+    private WeatherContract.WeatherModel model;
+    private MyLocationService locationService;
+    private PlacePreferences placePreferences;
 
-    PlacePreferences placePreferences;
 
     public WeatherPresenter(WeatherFragment view) {
         this.view = view;
         this.model = WeatherModel.getInstance(this);
-
+        locationService = new MyLocationService(view.getContext(), view);
         placePreferences = new PlacePreferences(view.getContext());
 
 
     }
 
 
-
     @Override
     public void getWeatherByPlace(Place place) {
         view.showProgress();
+
         model.getCurWeather(place);
+    }
+
+    @Override
+    public void onGetWeatherByGeoClicked() {
+        Location location = locationService.getLocation();
+
+        if (location != null) {
+            Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
+
+
+            getWeatherByPlace(place);
+        }
+    }
+
+    @Override
+    public void onGetWeatherByPlaceClicked(Place place) {
+        placePreferences.savePlace(place);
+        view.showProgress();
+
+        model.getCurWeather(place);
+
+
+
+
+
+    }
+
+    @Override
+    public Place getLastavedPlace() {
+
+        return placePreferences.getPlace();
     }
 
     public void fillHoursList(List<Day> days) {
         List<Day> result = new ArrayList<>();
 
         result.addAll(getWeatherFor24Hours(days));
-        view.setHoursAdapterData(result);
+        view.fillHoursAdapter(result);
 
     }
 
@@ -52,7 +90,7 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
     public void fillDaysList(List<Day> days) {
         List<Day> result = new ArrayList<>();
         result.addAll(convertToShort(days));
-        view.setDaysAdapterData(result);
+        view.fillDaysAdapter(result);
     }
 
     private List<Day> convertToShort(List<Day> days) {
@@ -94,7 +132,6 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
     public void getCurWeather(CurrentWeather currentWeather) {
         Place place = Place.builder().setName(currentWeather.getCityName()).setLatLng(currentWeather.getLatLng()).build();
         placePreferences.savePlace(place);
-
         view.renderCurrentWeather(currentWeather);
 
     }
