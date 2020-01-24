@@ -1,6 +1,5 @@
 package com.dmk78.weather.weather;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -48,7 +47,7 @@ public class WeatherModel implements WeatherContract.WeatherModel {
                     }
                     result.setLatLng(place.getLatLng());
                     callback.getCurWeather(result);
-                    getFiveFaysWeather(place);
+                    getFiveDaysWeather(place);
                 }
             }
 
@@ -60,7 +59,7 @@ public class WeatherModel implements WeatherContract.WeatherModel {
     }
 
     @Override
-    public void getFiveFaysWeather(Place place) {
+    public void getFiveDaysWeather(Place place) {
 
         networkService.getJSONApi().getFiveDaysWeather(place.getLatLng().latitude,
                 place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang)

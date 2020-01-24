@@ -34,6 +34,8 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
 
     @Override
     public void onGetWeatherByGeoClicked() {
+
+
         Location location = locationService.getLocation();
 
         if (location != null) {

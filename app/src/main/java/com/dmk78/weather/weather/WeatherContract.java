@@ -11,7 +11,7 @@ public interface WeatherContract {
     interface WeatherModel {
         void getCurWeather(Place place);
 
-        void getFiveFaysWeather(Place place);
+        void getFiveDaysWeather(Place place);
     }
 
     interface WeatherPresenter {
@@ -34,5 +34,7 @@ public interface WeatherContract {
         void fillDaysAdapter(List<Day> days);
 
         void fillHoursAdapter(List<Day> hours);
+
+        void showToast(String message);
     }
 }

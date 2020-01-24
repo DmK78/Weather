@@ -29,6 +29,7 @@ public class MyLocationService implements LocationListener, MyLocationInterface 
     // flag for network status
     boolean isNetworkEnabled = false;
     // flag for GPS status
+
     boolean canGetLocation = false;
     Location location; // location
     double latitude; // latitude
@@ -153,6 +154,7 @@ public class MyLocationService implements LocationListener, MyLocationInterface 
         }
         return longitude;
     }
+    @Override
     public boolean canGetLocation() {
         return this.canGetLocation;
     }

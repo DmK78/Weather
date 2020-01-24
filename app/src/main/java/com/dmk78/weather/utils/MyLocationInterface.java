@@ -4,4 +4,5 @@ import android.location.Location;
 
 public interface MyLocationInterface {
     Location getLocation();
+    boolean canGetLocation();
 }
