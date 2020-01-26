@@ -2,6 +2,8 @@ package com.dmk78.weather.weather;
 
 import android.location.Location;
 
+import androidx.fragment.app.Fragment;
+
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
@@ -15,6 +17,9 @@ import com.google.android.libraries.places.api.model.Place;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.Module;
+
+//@Module
 public class WeatherPresenter implements WeatherContract.WeatherPresenter, WeatherModel.ModelInterface {
     private WeatherContract.WeatherView view;
     private WeatherContract.WeatherModel model;
@@ -22,15 +27,23 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
     private PlaceInterface placePreferences;
 
 
-    public WeatherPresenter(WeatherFragment view) {
-        this.view = view;
+    public WeatherPresenter(Fragment view) {
+        this.view = (WeatherFragment) view;
+        this.model = WeatherModel.getInstance(this);
+        locationService = new MyLocationService(view.getContext(), view);
+        placePreferences = new PlacePreferences(view.getContext());
+    }
+
+    public WeatherPresenter() {
+    }
+
+    public void bindFragmentView(Fragment view){
+        this.view = (WeatherContract.WeatherView) view;
         this.model = WeatherModel.getInstance(this);
         locationService = new MyLocationService(view.getContext(), view);
         placePreferences = new PlacePreferences(view.getContext());
 
-
     }
-
 
     @Override
     public void onGetWeatherByGeoClicked() {
@@ -50,9 +63,6 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
         view.showProgress();
 
         model.getCurWeather(place);
-
-
-
 
 
     }
@@ -139,3 +149,4 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
 
 
 }
+

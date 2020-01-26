@@ -22,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.dmk78.weather.R;
 import com.dmk78.weather.adapters.DaysAdapter;
 import com.dmk78.weather.adapters.HoursAdapter;
+import com.dmk78.weather.App;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.utils.BgColorSetter;
@@ -39,9 +40,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+
+import javax.inject.Inject;
+
+import dagger.Module;
+import dagger.Provides;
+
+
 public class WeatherFragment extends Fragment implements WeatherContract.WeatherView {
     private ConstraintLayout bg;
-    private WeatherContract.WeatherPresenter presenter;
+    @Inject
+    //WeatherContract.WeatherPresenter presenter;
+    WeatherPresenter presenter;
     private RecyclerView recyclerDays;
     private DaysAdapter adapterDays;
     private RecyclerView recyclerHours;
@@ -58,7 +68,10 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
-        presenter = new WeatherPresenter(this);
+        //presenter = new WeatherPresenter(this);
+        App.getWeatherPresenter().injectTo(this);
+        presenter.bindFragmentView(this);
+
         bindAllViews(view);
         imageViewGetCurrentLocation.setOnClickListener(v -> presenter.onGetWeatherByGeoClicked());
         Places.initialize(getContext(), getString(R.string.google_maps_key));
