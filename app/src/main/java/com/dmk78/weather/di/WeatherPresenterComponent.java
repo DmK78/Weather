@@ -10,6 +10,12 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 28.01.2020
+ */
+
 @Singleton
 @Component(modules = WeatherPresenterModule.class)
 public interface WeatherPresenterComponent {

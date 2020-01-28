@@ -18,7 +18,13 @@ import com.google.android.libraries.places.api.model.Place;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Module
+
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public class WeatherPresenter implements WeatherContract.WeatherPresenter, NetworkService.WeatherCallback {
     private WeatherContract.WeatherView view;
     private WeatherContract.WeatherModel model;

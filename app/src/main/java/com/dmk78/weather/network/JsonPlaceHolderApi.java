@@ -7,6 +7,12 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public interface JsonPlaceHolderApi {
     @GET("weather")
     Call<CurrentWeather> getCurrentWeatherByCity(

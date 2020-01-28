@@ -12,6 +12,12 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 28.01.2020
+ */
+
 @Module
 public class WeatherPresenterModule {
 

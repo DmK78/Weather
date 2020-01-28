@@ -7,6 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public abstract class BaseActivity extends AppCompatActivity {
     protected abstract Fragment createFragment();
 

@@ -19,6 +19,12 @@ import androidx.fragment.app.Fragment;
 
 import static android.content.Context.LOCATION_SERVICE;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public class MyLocationImpl implements LocationListener, MyLocation {
     Context context;
     private Fragment fragment;

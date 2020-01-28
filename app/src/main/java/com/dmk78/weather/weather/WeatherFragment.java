@@ -47,6 +47,12 @@ import dagger.Module;
 import dagger.Provides;
 
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public class WeatherFragment extends Fragment implements WeatherContract.WeatherView {
     private ConstraintLayout bg;
     @Inject

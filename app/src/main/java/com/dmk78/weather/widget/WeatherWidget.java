@@ -24,6 +24,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public class WeatherWidget extends AppWidgetProvider implements NetworkService.WeatherCallback {
     private static final String SYNC_CLICKED = "weather_widget_update_action";
 

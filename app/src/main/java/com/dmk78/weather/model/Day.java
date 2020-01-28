@@ -3,6 +3,12 @@ package com.dmk78.weather.model;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public class Day {
 
 

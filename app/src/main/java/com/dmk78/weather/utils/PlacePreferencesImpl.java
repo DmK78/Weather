@@ -6,6 +6,12 @@ import android.content.SharedPreferences;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public class PlacePreferencesImpl implements PlacePreferences {
     private SharedPreferences sharedPreferences;
     private Context context;

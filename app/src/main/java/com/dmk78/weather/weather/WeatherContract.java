@@ -7,6 +7,12 @@ import com.google.android.libraries.places.api.model.Place;
 
 import java.util.List;
 
+/**
+ * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
+ * @version $Id$
+ * @since 01.12.2019
+ */
+
 public interface WeatherContract {
     interface WeatherModel {
         void getCurWeather(Place place);
