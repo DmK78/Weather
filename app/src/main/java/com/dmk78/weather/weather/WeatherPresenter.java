@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
+import com.dmk78.weather.network.NetworkService;
 import com.dmk78.weather.utils.MyLocationInterface;
 import com.dmk78.weather.utils.MyLocationService;
 import com.dmk78.weather.utils.PlaceInterface;
@@ -29,7 +30,7 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
 
     public WeatherPresenter(Fragment view) {
         this.view = (WeatherFragment) view;
-        this.model = WeatherModel.getInstance(this);
+        this.model = new WeatherModel(new NetworkService(), this);
         locationService = new MyLocationService(view.getContext(), view);
         placePreferences = new PlacePreferences(view.getContext());
     }
@@ -37,9 +38,9 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
     public WeatherPresenter() {
     }
 
-    public void bindFragmentView(Fragment view){
+    public void bindFragmentView(Fragment view) {
         this.view = (WeatherContract.WeatherView) view;
-        this.model = WeatherModel.getInstance(this);
+        this.model = new WeatherModel(new NetworkService(), this);
         locationService = new MyLocationService(view.getContext(), view);
         placePreferences = new PlacePreferences(view.getContext());
 

@@ -43,7 +43,7 @@ public class WeatherWidget extends AppWidgetProvider {
         Log.i("city", String.valueOf(place.getLatLng().longitude));
         double lat = placePreferences.loadPlace().getLatLng().latitude;
         double lng = placePreferences.loadPlace().getLatLng().longitude;
-        NetworkService networkService = NetworkService.getInstance();
+        NetworkService networkService = new NetworkService();
         networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
@@ -121,7 +121,7 @@ public class WeatherWidget extends AppWidgetProvider {
             String currentCity = placePreferences.loadPlace().getName();
             double lat = placePreferences.loadPlace().getLatLng().latitude;
             double lng = placePreferences.loadPlace().getLatLng().longitude;
-            NetworkService networkService = NetworkService.getInstance();
+            NetworkService networkService = new NetworkService();
             networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
                 @Override
                 public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {

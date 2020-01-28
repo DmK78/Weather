@@ -14,14 +14,14 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkService {
-    private static NetworkService mInstance;
+
     private String BASE_URL = "http://api.openweathermap.org/data/2.5/";
     private String key = "8f99535cdea446be868e707ba8062fc0";
     private String units = "metric";
     private String lang = "ru";
     private Retrofit mRetrofit;
 
-    private NetworkService() {
+    public NetworkService() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder client = new OkHttpClient.Builder();
@@ -56,12 +56,7 @@ public class NetworkService {
                 .build();
     }
 
-    public static NetworkService getInstance() {
-        if (mInstance == null) {
-            mInstance = new NetworkService();
-        }
-        return mInstance;
-    }
+
 
     public JsonPlaceHolderApi getJSONApi() {
         return mRetrofit.create(JsonPlaceHolderApi.class);

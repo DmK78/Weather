@@ -17,20 +17,14 @@ import retrofit2.Response;
 public class WeatherModel implements WeatherContract.WeatherModel {
     private NetworkService networkService;
     private ModelInterface callback;
-    private static WeatherModel instance;
 
-    private WeatherModel(NetworkService networkService, ModelInterface callback) {
+
+    public WeatherModel(NetworkService networkService, ModelInterface callback) {
         this.networkService = networkService;
         this.callback = callback;
     }
 
-    public static WeatherModel getInstance(ModelInterface modelInterface) {
-        if (instance == null) {
-            instance = new WeatherModel(NetworkService.getInstance(), modelInterface);
 
-        }
-        return instance;
-    }
 
     @Override
     public void getCurWeather(Place place) {
