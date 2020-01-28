@@ -1,7 +1,10 @@
 package com.dmk78.weather.network;
 
+import android.location.Location;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.lifecycle.LiveData;
 
 import com.dmk78.weather.BuildConfig;
 import com.dmk78.weather.model.CurrentWeather;
@@ -74,6 +77,13 @@ public class NetworkService implements WeatherContract.WeatherModel {
     public void getFiveDaysWeather(Place place) {
         getJSONApi().getFiveDaysWeather(place.getLatLng().latitude, place.getLatLng().longitude,
                 Constants.key, Constants.units, Constants.lang).enqueue(new FiveDaysWeatherCallBack(place));
+    }
+
+    public LiveData<CurrentWeather> getCurWeatherByGeoLiveData(Place currentPlace) {
+
+    }
+
+    public LiveData<CurrentWeather> getCurWeatherByPlaceLiveData(Location currentPlace) {
     }
 
     public class CurrentWeatherCallBack implements Callback<CurrentWeather> {
