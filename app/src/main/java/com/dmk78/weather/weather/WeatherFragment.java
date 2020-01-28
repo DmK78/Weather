@@ -1,5 +1,6 @@
 package com.dmk78.weather.weather;
 
+import android.location.Location;
 import android.os.Bundle;
 
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,8 +32,13 @@ import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.utils.BgColorSetter;
 
+import com.dmk78.weather.utils.MyLocation;
+import com.dmk78.weather.utils.MyLocationImpl;
+import com.dmk78.weather.utils.PlacePreferences;
+import com.dmk78.weather.utils.PlacePreferencesImpl;
 import com.dmk78.weather.utils.Utils;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
@@ -58,7 +65,7 @@ import dagger.Provides;
 
 public class WeatherFragment extends Fragment implements WeatherContract.WeatherView {
     private ConstraintLayout bg;
-    @Inject
+    //@Inject
     //WeatherContract.WeatherPresenter presenter;
     //WeatherPresenter presenter;
     private RecyclerView recyclerDays;
@@ -74,18 +81,30 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     private LiveData<CurrentWeather> currentWeatherLiveData;
     private LiveData<FiveDaysWeather> fiveDaysWeatherLiveData;
     private WeatherViewModel viewModel;
-
+private PlacePreferencesImpl placePreferences;
+    private MyLocation locationService;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
         //presenter = new WeatherPresenter(this);
-        App.getWeatherPresenter().injectTo(this);
+       // App.getWeatherPresenter().injectTo(this);
        // presenter.bindFragmentView(this);
-
+        locationService = new MyLocationImpl(view.getContext(), this);
         bindAllViews(view);
-        imageViewGetCurrentLocation.setOnClickListener(v -> presenter.onGetWeatherByGeoClicked());
+        placePreferences = new PlacePreferencesImpl(getContext());
+        viewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
+        getData();
+        imageViewGetCurrentLocation.setOnClickListener(v -> {
+            Location location = locationService.getLocation();
+            if(location!=null){
+                placePreferences.savePlace(Place.builder().setLatLng(new LatLng(location.getLatitude(),location.getLongitude())).build());
+            }else {
+                showToast("Can`t get location");
+            }
+            getData();
+        });
         Places.initialize(getContext(), getString(R.string.google_maps_key));
         AutocompleteSupportFragment search = (AutocompleteSupportFragment)
                 this.getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
@@ -93,7 +112,8 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         search.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                presenter.onGetWeatherByPlaceClicked(place);
+                placePreferences.savePlace(place);
+                getData();
 
             }
 
@@ -109,10 +129,31 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         adapterDays = new DaysAdapter(this.days, getContext());
         recyclerDays.setAdapter(adapterDays);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            presenter.onGetWeatherByPlaceClicked(presenter.getLastSavedPlace());
+            getData();
             swipeRefreshLayout.setRefreshing(false);
         });
         return view;
+    }
+
+    private void getData() {
+        currentWeatherLiveData=viewModel.getCurrentWeatherLiveDataResponse();
+        currentWeatherLiveData.observe(this, new Observer<CurrentWeather>() {
+            @Override
+            public void onChanged(CurrentWeather currentWeather) {
+                renderCurrentWeather(currentWeather);
+            }
+        });
+        fiveDaysWeatherLiveData=viewModel.getFiveDaysWeatherLiveDataResponse();
+        fiveDaysWeatherLiveData.observe(this, new Observer<FiveDaysWeather>() {
+            @Override
+            public void onChanged(FiveDaysWeather fiveDaysWeather) {
+
+                List<Day> dayList = fiveDaysWeather.getDays();
+                fillHoursList(dayList);
+                fillDaysList(dayList);
+            }
+        });
+
     }
 
     @Override
@@ -120,11 +161,19 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         super.onResume();
         Place place = viewModel.getSavedPlace();
         if (TextUtils.isEmpty(place.getName())) {
-            currentWeatherLiveData = viewModel.getCurrentWeatherByGeoLiveData(place);
+            Location location = locationService.getLocation();
+            if(location==null){
+                showToast("Can`t get location");
+            } else {
+                place = Place.builder().setLatLng(new LatLng(location.getLatitude(),location.getLongitude())).build();
+                placePreferences.savePlace(place);
+            }
 
-        } else {
-            currentWeatherLiveData = viewModel.getCurrentWeatherByPlaceLiveData(place);
+            //currentWeatherLiveData = viewModel.getCurrentWeatherLiveDataResponse();
+
         }
+            currentWeatherLiveData = viewModel.getCurrentWeatherLiveDataResponse();
+
         currentWeatherLiveData.observe(this, new Observer<CurrentWeather>() {
             @Override
             public void onChanged(CurrentWeather currentWeather) {
@@ -199,6 +248,62 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     @Override
     public void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void fillHoursList(List<Day> days) {
+        List<Day> result = new ArrayList<>();
+
+        result.addAll(getWeatherFor24Hours(days));
+        fillHoursAdapter(result);
+
+    }
+
+    private List<Day> getWeatherFor24Hours(List<Day> days) {
+        List<Day> result = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            result.add(days.get(i));
+        }
+        return result;
+    }
+
+    public void fillDaysList(List<Day> days) {
+        List<Day> result = new ArrayList<>();
+        result.addAll(convertToShort(days));
+        fillDaysAdapter(result);
+    }
+
+    private List<Day> convertToShort(List<Day> days) {
+        String baseData = days.get(0).getDate();
+        float minTemp = +100;
+        float maxTemp = -100;
+        List<Day> result = new ArrayList<>();
+
+        for (int i = 0; i < days.size(); i++) {
+            Day day = days.get(i);
+            String tmp = day.getDate();
+            day.setDate(tmp);
+            if (day.getDate().equals(baseData)) {
+                if (day.getMain().getMinTemp() < minTemp) {
+                    minTemp = day.getMain().getMinTemp();
+                }
+                if (day.getMain().getMaxTemp() > maxTemp) {
+                    maxTemp = day.getMain().getMaxTemp();
+                }
+
+                continue;
+            } else {
+                Day dayPrev = days.get(i - 1);
+                baseData = day.getDate();
+                dayPrev.getMain().setMaxTemp(maxTemp);
+                dayPrev.getMain().setMinTemp(minTemp);
+                maxTemp = -100;
+                minTemp = +100;
+                result.add(dayPrev);
+            }
+
+        }
+        return result;
+
     }
 
 
