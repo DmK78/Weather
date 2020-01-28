@@ -20,4 +20,5 @@
     <string name="weather_for_hours">Погода по часам</string>
     <string name="weather">погода</string>
     <string name="search">поиск</string>
+
 </resources>

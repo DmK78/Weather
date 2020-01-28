@@ -9,11 +9,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -21,7 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-public class MyLocationService implements LocationListener, MyLocationInterface {
+public class MyLocationImpl implements LocationListener, MyLocation {
     Context context;
     private Fragment fragment;
     private final int REQUEST_LOCATION_PERMISSION = 1;
@@ -42,7 +40,7 @@ public class MyLocationService implements LocationListener, MyLocationInterface 
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
-    public MyLocationService(Context context, Fragment fragment) {
+    public MyLocationImpl(Context context, Fragment fragment) {
         this.context = context;
         this.fragment = fragment;
         getLocation();

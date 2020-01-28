@@ -5,4 +5,20 @@
     <string name="widget_text">Weather in</string>
     <string name="updating">updating</string>
     <string name="current_city">Current city</string>
+    <string name="weather">weather</string>
+    <string name="weather_for_five_days">weather for 5 days</string>
+    <string name="time">Time</string>
+    <string name="temperature">Temperature</string>
+    <string name="search">search</string>
+    <string name="humidity">Humidity</string>
+    <string name="minimun">minimum</string>
+    <string name="please_wait">Loading</string>
+    <string name="pressure">Pressure</string>
+    <string name="direction">Direction</string>
+    <string name="description">description</string>
+    <string name="date">Date</string>
+    <string name="city">City</string>
+    <string name="wind">Wind</string>
+    <string name="windspeed">Wind speed</string>
+    <string name="weather_for_hours">Weather for 24 hours</string>
 </resources>

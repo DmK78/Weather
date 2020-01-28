@@ -8,31 +8,29 @@ import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.network.NetworkService;
-import com.dmk78.weather.utils.MyLocationInterface;
-import com.dmk78.weather.utils.MyLocationService;
-import com.dmk78.weather.utils.PlaceInterface;
+import com.dmk78.weather.utils.MyLocation;
+import com.dmk78.weather.utils.MyLocationImpl;
 import com.dmk78.weather.utils.PlacePreferences;
+import com.dmk78.weather.utils.PlacePreferencesImpl;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import dagger.Module;
-
 //@Module
-public class WeatherPresenter implements WeatherContract.WeatherPresenter, WeatherModel.ModelInterface {
+public class WeatherPresenter implements WeatherContract.WeatherPresenter, NetworkService.WeatherCallback {
     private WeatherContract.WeatherView view;
     private WeatherContract.WeatherModel model;
-    private MyLocationInterface locationService;
-    private PlaceInterface placePreferences;
+    private MyLocation locationService;
+    private PlacePreferences placePreferences;
 
 
     public WeatherPresenter(Fragment view) {
         this.view = (WeatherFragment) view;
-        this.model = new WeatherModel(new NetworkService(), this);
-        locationService = new MyLocationService(view.getContext(), view);
-        placePreferences = new PlacePreferences(view.getContext());
+        this.model = new NetworkService(this);
+        locationService = new MyLocationImpl(view.getContext(), view);
+        placePreferences = new PlacePreferencesImpl(view.getContext());
     }
 
     public WeatherPresenter() {
@@ -40,9 +38,9 @@ public class WeatherPresenter implements WeatherContract.WeatherPresenter, Weath
 
     public void bindFragmentView(Fragment view) {
         this.view = (WeatherContract.WeatherView) view;
-        this.model = new WeatherModel(new NetworkService(), this);
-        locationService = new MyLocationService(view.getContext(), view);
-        placePreferences = new PlacePreferences(view.getContext());
+        this.model = new NetworkService(this);
+        locationService = new MyLocationImpl(view.getContext(), view);
+        placePreferences = new PlacePreferencesImpl(view.getContext());
 
     }
 

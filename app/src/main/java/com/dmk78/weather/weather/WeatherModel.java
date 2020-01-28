@@ -16,20 +16,21 @@ import retrofit2.Response;
 
 public class WeatherModel implements WeatherContract.WeatherModel {
     private NetworkService networkService;
-    private ModelInterface callback;
 
 
-    public WeatherModel(NetworkService networkService, ModelInterface callback) {
+
+    public WeatherModel(NetworkService networkService ) {
         this.networkService = networkService;
-        this.callback = callback;
+
     }
 
 
 
     @Override
     public void getCurWeather(Place place) {
+        //networkService.currentWeatherByCoord(place,this);
 
-        networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude,
+        /*networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude,
                 place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
@@ -40,7 +41,7 @@ public class WeatherModel implements WeatherContract.WeatherModel {
 
                     }
                     result.setLatLng(place.getLatLng());
-                    callback.getCurWeather(result);
+                   // callback.getCurWeather(result);
                     getFiveDaysWeather(place);
                 }
             }
@@ -48,7 +49,7 @@ public class WeatherModel implements WeatherContract.WeatherModel {
             @Override
             public void onFailure(Call<CurrentWeather> call, Throwable t) {
             }
-        });
+        });*/
 
     }
 
@@ -63,7 +64,7 @@ public class WeatherModel implements WeatherContract.WeatherModel {
                         if (response.isSuccessful()) {
                             FiveDaysWeather result = response.body();
                             result.calculateDateTime();
-                            callback.getFiveDaysWeather(result);
+                           // callback.getFiveDaysWeather(result);
 
                         } else {
                             Log.i("MyError", "" + response.code());
