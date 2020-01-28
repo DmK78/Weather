@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.dmk78.weather.BuildConfig;
 import com.dmk78.weather.model.CurrentWeather;
@@ -24,6 +25,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+
 
 
 /**
@@ -67,72 +70,62 @@ public class NetworkService implements WeatherContract.WeatherModel {
                 .build();
     }
 
+
+
     @Override
-    public void getCurWeather(Place place) {
+    public LiveData<CurrentWeather> getCurWeather(Place place) {
+        final MutableLiveData<CurrentWeather> data = new MutableLiveData<>();
         getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude,
-                Constants.key, Constants.units, Constants.lang).enqueue(new CurrentWeatherCallBack(place));
+                Constants.key, Constants.units, Constants.lang)
+                .enqueue(new Callback<CurrentWeather>() {
+
+                    @Override
+                    public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
+                        //Log.d(TAG, "onResponse response:: " + response);
+                        if (response.body() != null) {
+                            CurrentWeather result = response.body();
+                            if (!TextUtils.isEmpty(place.getName())) {
+                                result.setCityName(place.getName());
+                            }
+                            result.setLatLng(place.getLatLng());
+                            data.setValue(result);
+                            getFiveDaysWeather(place);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CurrentWeather> call, Throwable t) {
+                        data.setValue(null);
+                    }
+                });
+        return data;
     }
 
-    @Override
-    public void getFiveDaysWeather(Place place) {
+    public LiveData<FiveDaysWeather> getFiveDaysWeather(Place place) {
+        final MutableLiveData<FiveDaysWeather> data = new MutableLiveData<>();
         getJSONApi().getFiveDaysWeather(place.getLatLng().latitude, place.getLatLng().longitude,
-                Constants.key, Constants.units, Constants.lang).enqueue(new FiveDaysWeatherCallBack(place));
+                Constants.key, Constants.units, Constants.lang)
+                .enqueue(new Callback<FiveDaysWeather>() {
+
+                    @Override
+                    public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
+                        //Log.d(TAG, "onResponse response:: " + response);
+                        if (response.body() != null) {
+                            FiveDaysWeather result = response.body();
+                            result.calculateDateTime();
+                            data.setValue(result);
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<FiveDaysWeather> call, Throwable t) {
+                        data.setValue(null);
+                    }
+                });
+        return data;
     }
 
-    public LiveData<CurrentWeather> getCurWeatherByGeoLiveData(Place currentPlace) {
-
-    }
-
-    public LiveData<CurrentWeather> getCurWeatherByPlaceLiveData(Location currentPlace) {
-    }
-
-    public class CurrentWeatherCallBack implements Callback<CurrentWeather> {
-        Place place;
-        public CurrentWeatherCallBack(Place place) {
-            this.place = place;
-        }
-        @Override
-        public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
-            if (response.isSuccessful()) {
-                CurrentWeather result = response.body();
-                if (!TextUtils.isEmpty(place.getName())) {
-                    result.setCityName(place.getName());
-                }
-                result.setLatLng(place.getLatLng());
-                callback.getCurWeather(result);
-                getFiveDaysWeather(place);
-            } else {
-                Log.i(Constants.ERROR_LOG, String.valueOf(response.code()));
-            }
-        }
-        @Override
-        public void onFailure(Call<CurrentWeather> call, Throwable t) {
-            Log.i(Constants.ERROR_LOG, t.getMessage());
-        }
-    }
-
-    private class FiveDaysWeatherCallBack implements Callback<FiveDaysWeather> {
-        Place place;
-        public FiveDaysWeatherCallBack(Place place) {
-            this.place = place;
-        }
-
-        @Override
-        public void onResponse(Call<FiveDaysWeather> call, Response<FiveDaysWeather> response) {
-            if (response.isSuccessful()) {
-                FiveDaysWeather result = response.body();
-                result.calculateDateTime();
-                callback.getFiveDaysWeather(result);
-            } else {
-                Log.i(Constants.ERROR_LOG, String.valueOf(response.code()));
-            }
-        }
-
-        @Override
-        public void onFailure(Call<FiveDaysWeather> call, Throwable t) {
-            Log.i(Constants.ERROR_LOG, t.getMessage());
-        }
-    }
 
 
     public JsonPlaceHolderApi getJSONApi() {

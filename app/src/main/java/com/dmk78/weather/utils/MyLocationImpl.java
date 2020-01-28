@@ -49,7 +49,7 @@ public class MyLocationImpl implements LocationListener, MyLocation {
     public MyLocationImpl(Context context, Fragment fragment) {
         this.context = context;
         this.fragment = fragment;
-        getLocation();
+        //getLocation();
     }
 
 

@@ -1,5 +1,7 @@
 package com.dmk78.weather.weather;
 
+import androidx.lifecycle.LiveData;
+
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
@@ -15,9 +17,9 @@ import java.util.List;
 
 public interface WeatherContract {
     interface WeatherModel {
-        void getCurWeather(Place place);
+        LiveData<CurrentWeather> getCurWeather(Place place);
 
-        void getFiveDaysWeather(Place place);
+        LiveData<FiveDaysWeather> getFiveDaysWeather(Place place);
     }
 
     interface WeatherPresenter {
