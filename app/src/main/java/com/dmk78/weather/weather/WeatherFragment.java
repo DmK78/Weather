@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -25,6 +27,7 @@ import com.dmk78.weather.adapters.HoursAdapter;
 import com.dmk78.weather.App;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
+import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.utils.BgColorSetter;
 
 import com.dmk78.weather.utils.Utils;
@@ -57,7 +60,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     private ConstraintLayout bg;
     @Inject
     //WeatherContract.WeatherPresenter presenter;
-    WeatherPresenter presenter;
+    //WeatherPresenter presenter;
     private RecyclerView recyclerDays;
     private DaysAdapter adapterDays;
     private RecyclerView recyclerHours;
@@ -68,6 +71,9 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
     private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
             textViewWindSpeed, textViewHumidity, textViewCity;
+    private LiveData<CurrentWeather> currentWeatherLiveData;
+    private LiveData<FiveDaysWeather> fiveDaysWeatherLiveData;
+    private WeatherViewModel viewModel;
 
 
     @Nullable
@@ -76,7 +82,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         View view = inflater.inflate(R.layout.activity_weather, container, false);
         //presenter = new WeatherPresenter(this);
         App.getWeatherPresenter().injectTo(this);
-        presenter.bindFragmentView(this);
+       // presenter.bindFragmentView(this);
 
         bindAllViews(view);
         imageViewGetCurrentLocation.setOnClickListener(v -> presenter.onGetWeatherByGeoClicked());
@@ -112,10 +118,27 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     @Override
     public void onResume() {
         super.onResume();
-        Place place = presenter.getLastSavedPlace();
+        Place place = viewModel.getSavedPlace();
+        if (TextUtils.isEmpty(place.getName())) {
+            currentWeatherLiveData = viewModel.getCurrentWeatherByGeoLiveData(place);
+
+        } else {
+            currentWeatherLiveData = viewModel.getCurrentWeatherByPlaceLiveData(place);
+        }
+        currentWeatherLiveData.observe(this, new Observer<CurrentWeather>() {
+            @Override
+            public void onChanged(CurrentWeather currentWeather) {
+                currentWeather = currentWeatherLiveData.getValue();
+                renderCurrentWeather(currentWeather);
+            }
+        });
+
+
+
+        /*Place place = .getLastSavedPlace();
         if (TextUtils.isEmpty(place.getName())) {
             presenter.onGetWeatherByGeoClicked();
-        } else presenter.onGetWeatherByPlaceClicked(place);
+        } else presenter.onGetWeatherByPlaceClicked(place);*/
     }
 
     private void bindAllViews(View view) {
