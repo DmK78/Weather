@@ -30,7 +30,7 @@ import retrofit2.Response;
  * @since 01.12.2019
  */
 
-public class WeatherWidget extends AppWidgetProvider implements NetworkService.WeatherCallback {
+public class WeatherWidget extends AppWidgetProvider  {
     private static final String SYNC_CLICKED = "weather_widget_update_action";
 
 
@@ -154,14 +154,6 @@ public class WeatherWidget extends AppWidgetProvider implements NetworkService.W
     }
 
 
-    @Override
-    public void getCurWeather(CurrentWeather currentWeather) {
 
-    }
-
-    @Override
-    public void getFiveDaysWeather(FiveDaysWeather fiveDaysWeather) {
-
-    }
 }
 
