@@ -1,6 +1,5 @@
 package com.dmk78.weather.network;
 
-import android.location.Location;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,9 +13,6 @@ import com.dmk78.weather.utils.Constants;
 import com.dmk78.weather.weather.WeatherContract;
 import com.google.android.libraries.places.api.model.Place;
 
-import java.io.IOException;
-
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -27,21 +23,17 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-
-
 /**
  * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
  * @version $Id$
  * @since 01.12.2019
  */
-public class NetworkService implements WeatherContract.WeatherModel {
+public class NetworkService implements WeatherContract.ViewModel {
     private Retrofit mRetrofit;
-    private WeatherCallback callback;
 
-    public NetworkService(WeatherCallback callback) {
-        if (callback != null) {
-            this.callback = callback;
-        }
+
+    public NetworkService() {
+
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder client = new OkHttpClient.Builder();
@@ -71,9 +63,9 @@ public class NetworkService implements WeatherContract.WeatherModel {
     }
 
 
-
     @Override
     public LiveData<CurrentWeather> getCurWeather(Place place) {
+
         final MutableLiveData<CurrentWeather> data = new MutableLiveData<>();
         getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude,
                 Constants.key, Constants.units, Constants.lang)
@@ -102,6 +94,7 @@ public class NetworkService implements WeatherContract.WeatherModel {
     }
 
     public LiveData<FiveDaysWeather> getFiveDaysWeather(Place place) {
+
         final MutableLiveData<FiveDaysWeather> data = new MutableLiveData<>();
         getJSONApi().getFiveDaysWeather(place.getLatLng().latitude, place.getLatLng().longitude,
                 Constants.key, Constants.units, Constants.lang)
@@ -125,7 +118,6 @@ public class NetworkService implements WeatherContract.WeatherModel {
                 });
         return data;
     }
-
 
 
     public JsonPlaceHolderApi getJSONApi() {

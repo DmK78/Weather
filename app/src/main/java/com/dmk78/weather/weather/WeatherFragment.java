@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -26,7 +27,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.dmk78.weather.R;
 import com.dmk78.weather.adapters.DaysAdapter;
 import com.dmk78.weather.adapters.HoursAdapter;
-import com.dmk78.weather.App;
+import com.dmk78.weather.databinding.ActivityWeatherBinding;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.Day;
 import com.dmk78.weather.model.FiveDaysWeather;
@@ -34,7 +35,6 @@ import com.dmk78.weather.utils.BgColorSetter;
 
 import com.dmk78.weather.utils.MyLocation;
 import com.dmk78.weather.utils.MyLocationImpl;
-import com.dmk78.weather.utils.PlacePreferences;
 import com.dmk78.weather.utils.PlacePreferencesImpl;
 import com.dmk78.weather.utils.Utils;
 import com.google.android.gms.common.api.Status;
@@ -51,12 +51,6 @@ import java.util.Date;
 import java.util.List;
 
 
-import javax.inject.Inject;
-
-import dagger.Module;
-import dagger.Provides;
-
-
 /**
  * @author Dmitry Kolganov (mailto:dmk78@inbox.ru)
  * @version $Id$
@@ -65,9 +59,7 @@ import dagger.Provides;
 
 public class WeatherFragment extends Fragment implements WeatherContract.WeatherView {
     private ConstraintLayout bg;
-    //@Inject
-    //WeatherContract.WeatherPresenter presenter;
-    //WeatherPresenter presenter;
+
     private RecyclerView recyclerDays;
     private DaysAdapter adapterDays;
     private RecyclerView recyclerHours;
@@ -81,29 +73,48 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     private LiveData<CurrentWeather> currentWeatherLiveData;
     private LiveData<FiveDaysWeather> fiveDaysWeatherLiveData;
     private WeatherViewModel viewModel;
-private PlacePreferencesImpl placePreferences;
+    private PlacePreferencesImpl placePreferences;
     private MyLocation locationService;
+    ActivityWeatherBinding binding;
+    CurrentWeatherObserver currentWeatherObserver;
+    FiveDaysWeatherObserver fiveDaysWeatherObserver;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_weather, container, false);
-        //presenter = new WeatherPresenter(this);
-       // App.getWeatherPresenter().injectTo(this);
-       // presenter.bindFragmentView(this);
+        binding = DataBindingUtil.setContentView(getActivity(), R.layout.activity_weather);
+        currentWeatherObserver = new CurrentWeatherObserver();
+        fiveDaysWeatherObserver = new FiveDaysWeatherObserver();
+
         locationService = new MyLocationImpl(view.getContext(), this);
         bindAllViews(view);
         placePreferences = new PlacePreferencesImpl(getContext());
+
+        binding.bind(view).setViewmodel(new WeatherViewModel(getActivity().getApplication()));
+
+
         viewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
-        getData();
+        refreshDataFromNetwork();
+
         imageViewGetCurrentLocation.setOnClickListener(v -> {
             Location location = locationService.getLocation();
-            if(location!=null){
-                placePreferences.savePlace(Place.builder().setLatLng(new LatLng(location.getLatitude(),location.getLongitude())).build());
-            }else {
+            if (location != null) {
+                final Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
+                placePreferences.savePlace(place);
+                viewModel.updateWeather(place);
+                refreshDataFromNetwork();
+            } else {
                 showToast("Can`t get location");
             }
-            getData();
+
         });
         Places.initialize(getContext(), getString(R.string.google_maps_key));
         AutocompleteSupportFragment search = (AutocompleteSupportFragment)
@@ -113,7 +124,9 @@ private PlacePreferencesImpl placePreferences;
             @Override
             public void onPlaceSelected(Place place) {
                 placePreferences.savePlace(place);
-                getData();
+                viewModel.updateWeather(place);
+                refreshDataFromNetwork();
+
 
             }
 
@@ -129,31 +142,21 @@ private PlacePreferencesImpl placePreferences;
         adapterDays = new DaysAdapter(this.days, getContext());
         recyclerDays.setAdapter(adapterDays);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            getData();
-            swipeRefreshLayout.setRefreshing(false);
+
+            swipeRefreshLayout.setRefreshing(true);
+            refreshDataFromNetwork();
         });
+
         return view;
     }
 
-    private void getData() {
-        currentWeatherLiveData=viewModel.getCurrentWeatherLiveDataResponse();
-        currentWeatherLiveData.observe(this, new Observer<CurrentWeather>() {
-            @Override
-            public void onChanged(CurrentWeather currentWeather) {
-                renderCurrentWeather(currentWeather);
-            }
-        });
-        fiveDaysWeatherLiveData=viewModel.getFiveDaysWeatherLiveDataResponse();
-        fiveDaysWeatherLiveData.observe(this, new Observer<FiveDaysWeather>() {
-            @Override
-            public void onChanged(FiveDaysWeather fiveDaysWeather) {
-
-                List<Day> dayList = fiveDaysWeather.getDays();
-                fillHoursList(dayList);
-                fillDaysList(dayList);
-            }
-        });
-
+    private void refreshDataFromNetwork() {
+        currentWeatherLiveData = viewModel.getCurrentWeatherLiveDataResponse();
+        CurrentWeatherObserver currentWeatherObserver = new CurrentWeatherObserver();
+        currentWeatherLiveData.observe(this, currentWeatherObserver);
+        fiveDaysWeatherLiveData = viewModel.getFiveDaysWeatherLiveDataResponse();
+        FiveDaysWeatherObserver fiveDaysWeatherObserver = new FiveDaysWeatherObserver();
+        fiveDaysWeatherLiveData.observe(this, fiveDaysWeatherObserver);
     }
 
     @Override
@@ -162,32 +165,16 @@ private PlacePreferencesImpl placePreferences;
         Place place = viewModel.getSavedPlace();
         if (TextUtils.isEmpty(place.getName())) {
             Location location = locationService.getLocation();
-            if(location==null){
+            if (location == null) {
                 showToast("Can`t get location");
             } else {
-                place = Place.builder().setLatLng(new LatLng(location.getLatitude(),location.getLongitude())).build();
+                place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
                 placePreferences.savePlace(place);
+                swipeRefreshLayout.setRefreshing(true);
+
             }
-
-            //currentWeatherLiveData = viewModel.getCurrentWeatherLiveDataResponse();
-
         }
-            currentWeatherLiveData = viewModel.getCurrentWeatherLiveDataResponse();
 
-        currentWeatherLiveData.observe(this, new Observer<CurrentWeather>() {
-            @Override
-            public void onChanged(CurrentWeather currentWeather) {
-                currentWeather = currentWeatherLiveData.getValue();
-                renderCurrentWeather(currentWeather);
-            }
-        });
-
-
-
-        /*Place place = .getLastSavedPlace();
-        if (TextUtils.isEmpty(place.getName())) {
-            presenter.onGetWeatherByGeoClicked();
-        } else presenter.onGetWeatherByPlaceClicked(place);*/
     }
 
     private void bindAllViews(View view) {
@@ -208,7 +195,8 @@ private PlacePreferencesImpl placePreferences;
     }
 
     @Override
-    public void renderCurrentWeather(CurrentWeather weather) {
+    public void renderCurrentWeather(LiveData<CurrentWeather> weatherLive) {
+        CurrentWeather weather = weatherLive.getValue();
         Date date = new Date();
         date.setTime((long) weather.getDt() * 1000);
         SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy EEE");
@@ -235,76 +223,33 @@ private PlacePreferencesImpl placePreferences;
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    @Override
-    public void fillDaysAdapter(List<Day> days) {
-        adapterDays.setData(days);
-    }
-
-    @Override
-    public void fillHoursAdapter(List<Day> hours) {
-        adapterHours.setData(hours);
-    }
 
     @Override
     public void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    public void fillHoursList(List<Day> days) {
-        List<Day> result = new ArrayList<>();
+    class CurrentWeatherObserver implements Observer<CurrentWeather> {
 
-        result.addAll(getWeatherFor24Hours(days));
-        fillHoursAdapter(result);
+        @Override
+        public void onChanged(CurrentWeather currentWeather) {
+            if (currentWeather != null) {
+                renderCurrentWeather(currentWeatherLiveData);
+                //          binding.textViewCurrentCity.setText(currentWeatherLiveData.getValue().getCityName());
+                swipeRefreshLayout.setRefreshing(false);
 
-    }
-
-    private List<Day> getWeatherFor24Hours(List<Day> days) {
-        List<Day> result = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            result.add(days.get(i));
-        }
-        return result;
-    }
-
-    public void fillDaysList(List<Day> days) {
-        List<Day> result = new ArrayList<>();
-        result.addAll(convertToShort(days));
-        fillDaysAdapter(result);
-    }
-
-    private List<Day> convertToShort(List<Day> days) {
-        String baseData = days.get(0).getDate();
-        float minTemp = +100;
-        float maxTemp = -100;
-        List<Day> result = new ArrayList<>();
-
-        for (int i = 0; i < days.size(); i++) {
-            Day day = days.get(i);
-            String tmp = day.getDate();
-            day.setDate(tmp);
-            if (day.getDate().equals(baseData)) {
-                if (day.getMain().getMinTemp() < minTemp) {
-                    minTemp = day.getMain().getMinTemp();
-                }
-                if (day.getMain().getMaxTemp() > maxTemp) {
-                    maxTemp = day.getMain().getMaxTemp();
-                }
-
-                continue;
-            } else {
-                Day dayPrev = days.get(i - 1);
-                baseData = day.getDate();
-                dayPrev.getMain().setMaxTemp(maxTemp);
-                dayPrev.getMain().setMinTemp(minTemp);
-                maxTemp = -100;
-                minTemp = +100;
-                result.add(dayPrev);
             }
-
         }
-        return result;
-
     }
 
+    class FiveDaysWeatherObserver implements Observer<FiveDaysWeather> {
 
+        @Override
+        public void onChanged(FiveDaysWeather fiveDaysWeather) {
+            List<Day> dayList = fiveDaysWeatherLiveData.getValue().getDays();
+
+            adapterHours.setData(dayList);
+            adapterDays.setData(dayList);
+        }
+    }
 }

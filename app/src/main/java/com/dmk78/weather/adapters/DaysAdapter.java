@@ -16,6 +16,7 @@ import com.dmk78.weather.R;
 import com.dmk78.weather.utils.Utils;
 import com.dmk78.weather.model.Day;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,8 +46,44 @@ public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayHolder> {
     }
 
     public void setData(List<Day> days) {
-        this.days = days;
+        List<Day> result = new ArrayList<>();
+        result.addAll(convertToShort(days));
+        this.days = result;
         notifyDataSetChanged();
+    }
+
+    private List<Day> convertToShort(List<Day> days) {
+        String baseData = days.get(0).getDate();
+        float minTemp = +100;
+        float maxTemp = -100;
+        List<Day> result = new ArrayList<>();
+
+        for (int i = 0; i < days.size(); i++) {
+            Day day = days.get(i);
+            String tmp = day.getDate();
+            day.setDate(tmp);
+            if (day.getDate().equals(baseData)) {
+                if (day.getMain().getMinTemp() < minTemp) {
+                    minTemp = day.getMain().getMinTemp();
+                }
+                if (day.getMain().getMaxTemp() > maxTemp) {
+                    maxTemp = day.getMain().getMaxTemp();
+                }
+
+                continue;
+            } else {
+                Day dayPrev = days.get(i - 1);
+                baseData = day.getDate();
+                dayPrev.getMain().setMaxTemp(maxTemp);
+                dayPrev.getMain().setMinTemp(minTemp);
+                maxTemp = -100;
+                minTemp = +100;
+                result.add(dayPrev);
+            }
+
+        }
+        return result;
+
     }
 
     @Override

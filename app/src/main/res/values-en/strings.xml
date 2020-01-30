@@ -6,7 +6,7 @@
     <string name="updating">updating</string>
     <string name="current_city">Current city</string>
     <string name="weather">weather</string>
-    <string name="weather_for_five_days">weather for 5 days</string>
+    <string name="weather_for_five_days">Weather for 5 days</string>
     <string name="time">Time</string>
     <string name="temperature">Temperature</string>
     <string name="search">search</string>

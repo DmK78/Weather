@@ -1,5 +1,7 @@
 package com.dmk78.weather.network;
 
+import androidx.lifecycle.LiveData;
+
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.FiveDaysWeather;
 
@@ -14,14 +16,6 @@ import retrofit2.http.Query;
  */
 
 public interface JsonPlaceHolderApi {
-    @GET("weather")
-    Call<CurrentWeather> getCurrentWeatherByCity(
-            @Query("q") String cityName,
-            @Query("appid") String apiKey,
-            @Query("units") String units,
-            @Query("lang") String lang
-    );
-
     @GET("forecast")
     Call<FiveDaysWeather> getFiveDaysWeather(
             @Query("lat") double latittude,
