@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 public interface WeatherContract {
-    interface WeatherModel {
+    interface ViewModel {
         LiveData<CurrentWeather> getCurWeather(Place place);
 
         LiveData<FiveDaysWeather> getFiveDaysWeather(Place place);
@@ -33,15 +33,11 @@ public interface WeatherContract {
     }
 
     interface WeatherView {
-        void renderCurrentWeather(CurrentWeather currentWeather);
+        void renderCurrentWeather(LiveData<CurrentWeather> weatherLiveData);
 
         void showProgress();
 
         void hideProgress();
-
-        void fillDaysAdapter(List<Day> days);
-
-        void fillHoursAdapter(List<Day> hours);
 
         void showToast(String message);
     }

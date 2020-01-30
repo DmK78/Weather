@@ -17,6 +17,7 @@ import com.dmk78.weather.R;
 import com.dmk78.weather.utils.Utils;
 import com.dmk78.weather.model.Day;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,8 +45,18 @@ public class HoursAdapter extends RecyclerView.Adapter<HoursAdapter.HoursHolder>
     }
 
     public void setData(List<Day> days) {
-        this.days = days;
+        List<Day> result = new ArrayList<>();
+        result.addAll(getWeatherFor24Hours(days));
+        this.days = result;
         notifyDataSetChanged();
+    }
+
+    private List<Day> getWeatherFor24Hours(List<Day> days) {
+        List<Day> result = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            result.add(days.get(i));
+        }
+        return result;
     }
 
     @Override

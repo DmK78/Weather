@@ -50,8 +50,8 @@ public class WeatherWidget extends AppWidgetProvider implements NetworkService.W
         Log.i("city", String.valueOf(place.getLatLng().longitude));
         double lat = placePreferences.loadPlace().getLatLng().latitude;
         double lng = placePreferences.loadPlace().getLatLng().longitude;
-        NetworkService networkService = new NetworkService(null);
-        networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
+        NetworkService networkService = new NetworkService();
+        /*networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                 if (response.isSuccessful()) {
@@ -70,7 +70,7 @@ public class WeatherWidget extends AppWidgetProvider implements NetworkService.W
             @Override
             public void onFailure(Call<CurrentWeather> call, Throwable t) {
             }
-        });
+        });*/
     }
 
     @Override
@@ -128,8 +128,8 @@ public class WeatherWidget extends AppWidgetProvider implements NetworkService.W
             String currentCity = placePreferences.loadPlace().getName();
             double lat = placePreferences.loadPlace().getLatLng().latitude;
             double lng = placePreferences.loadPlace().getLatLng().longitude;
-            NetworkService networkService = new NetworkService(null);
-            networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
+            NetworkService networkService = new NetworkService();
+            /*networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
                 @Override
                 public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                     if (response.isSuccessful()) {
@@ -149,7 +149,7 @@ public class WeatherWidget extends AppWidgetProvider implements NetworkService.W
                 @Override
                 public void onFailure(Call<CurrentWeather> call, Throwable t) {
                 }
-            });
+            });*/
         }
     }
 
