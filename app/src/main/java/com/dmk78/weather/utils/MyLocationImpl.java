@@ -1,6 +1,7 @@
 package com.dmk78.weather.utils;
 
 import android.Manifest;
+import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import static android.content.Context.LOCATION_SERVICE;
 public class MyLocationImpl implements LocationListener, MyLocation {
     Context context;
     private Fragment fragment;
+    private Application application;
     private final int REQUEST_LOCATION_PERMISSION = 1;
     boolean isGPSEnabled = false;
     // flag for network status
@@ -46,9 +48,9 @@ public class MyLocationImpl implements LocationListener, MyLocation {
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
-    public MyLocationImpl(Context context, Fragment fragment) {
-        this.context = context;
-        this.fragment = fragment;
+    public MyLocationImpl(Application application) {
+        this.context = application.getApplicationContext();
+        this.application = application;
         //getLocation();
     }
 
@@ -69,7 +71,7 @@ public class MyLocationImpl implements LocationListener, MyLocation {
 
     @Override
     public Location getLocation() {
-        checkLocPermissions();
+        //checkLocPermissions();
         try {
             locationManager = (LocationManager) context
                     .getSystemService(LOCATION_SERVICE);
@@ -126,57 +128,4 @@ public class MyLocationImpl implements LocationListener, MyLocation {
         return location;
     }
 
-    public void checkLocPermissions() {
-
-        if (ContextCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(fragment.getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-            ActivityCompat.requestPermissions(fragment.getActivity(),
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-        }
-
-
-    }
-
-    public double getLatitude() {
-        if (location != null) {
-            latitude = location.getLatitude();
-        }
-        return latitude;
-    }
-    public double getLongitude() {
-        if (location != null) {
-            longitude = location.getLongitude();
-        }
-        return longitude;
-    }
-    @Override
-    public boolean canGetLocation() {
-        return this.canGetLocation;
-    }
-    public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("GPS settings");
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
-        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                context.startActivity(intent);
-            }
-        });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alertDialog.show();
-    }
 }
