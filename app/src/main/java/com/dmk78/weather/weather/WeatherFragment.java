@@ -1,5 +1,7 @@
 package com.dmk78.weather.weather;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -15,6 +17,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -58,64 +62,29 @@ import java.util.List;
  */
 
 public class WeatherFragment extends Fragment implements WeatherContract.WeatherView {
-    private ConstraintLayout bg;
-
     private RecyclerView recyclerDays;
+    private final int REQUEST_LOCATION_PERMISSION = 1;
     private DaysAdapter adapterDays;
     private RecyclerView recyclerHours;
     private SwipeRefreshLayout swipeRefreshLayout;
     private HoursAdapter adapterHours;
     private List<Day> days = new ArrayList<>();
     private List<Day> hours = new ArrayList<>();
-    private ImageView imageViewCurrentTemp, imageViewWind, imageViewGetCurrentLocation;
-    private TextView textViewTemp, textViewMinTemp, textViewPressure, textViewWeatherDesc,
-            textViewWindSpeed, textViewHumidity, textViewCity;
-    private LiveData<CurrentWeather> currentWeatherLiveData;
-    private LiveData<FiveDaysWeather> fiveDaysWeatherLiveData;
     private WeatherViewModel viewModel;
     private PlacePreferencesImpl placePreferences;
-    private MyLocation locationService;
-    ActivityWeatherBinding binding;
+    private ActivityWeatherBinding binding;
     CurrentWeatherObserver currentWeatherObserver;
     FiveDaysWeatherObserver fiveDaysWeatherObserver;
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-
-    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_weather, container, false);
-        binding = DataBindingUtil.setContentView(getActivity(), R.layout.activity_weather);
-        currentWeatherObserver = new CurrentWeatherObserver();
-        fiveDaysWeatherObserver = new FiveDaysWeatherObserver();
-
-        locationService = new MyLocationImpl(view.getContext(), this);
-        bindAllViews(view);
-        placePreferences = new PlacePreferencesImpl(getContext());
-
-        binding.bind(view).setViewmodel(new WeatherViewModel(getActivity().getApplication()));
-
-
         viewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
-        refreshDataFromNetwork();
-
-        imageViewGetCurrentLocation.setOnClickListener(v -> {
-            Location location = locationService.getLocation();
-            if (location != null) {
-                final Place place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
-                placePreferences.savePlace(place);
-                viewModel.updateWeather(place);
-                refreshDataFromNetwork();
-            } else {
-                showToast("Can`t get location");
-            }
-
-        });
+        binding = DataBindingUtil.inflate(inflater, R.layout.activity_weather, container, false);
+        placePreferences = new PlacePreferencesImpl(getContext());
+        binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.setViewmodel(viewModel);
+        viewModel.updateWeather(placePreferences.loadPlace());
         Places.initialize(getContext(), getString(R.string.google_maps_key));
         AutocompleteSupportFragment search = (AutocompleteSupportFragment)
                 this.getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
@@ -123,11 +92,8 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         search.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                placePreferences.savePlace(place);
+                swipeRefreshLayout.setRefreshing(true);
                 viewModel.updateWeather(place);
-                refreshDataFromNetwork();
-
-
             }
 
             @Override
@@ -135,6 +101,10 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
                 Log.i(WeatherFragment.class.getName(), "An error occurred: " + status);
             }
         });
+        checkLocPermissions();
+        recyclerDays = binding.resyclerDays;
+        recyclerHours = binding.recyclerHours;
+        swipeRefreshLayout = binding.swipe;
         this.recyclerDays.setLayoutManager(new LinearLayoutManager(getContext()));
         this.recyclerHours.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         adapterHours = new HoursAdapter(this.hours, getContext());
@@ -142,76 +112,43 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
         adapterDays = new DaysAdapter(this.days, getContext());
         recyclerDays.setAdapter(adapterDays);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-
             swipeRefreshLayout.setRefreshing(true);
-            refreshDataFromNetwork();
+            viewModel.getCurWeather(placePreferences.loadPlace());
         });
-
-        return view;
-    }
-
-    private void refreshDataFromNetwork() {
-        currentWeatherLiveData = viewModel.getCurrentWeatherLiveDataResponse();
-        CurrentWeatherObserver currentWeatherObserver = new CurrentWeatherObserver();
-        currentWeatherLiveData.observe(this, currentWeatherObserver);
-        fiveDaysWeatherLiveData = viewModel.getFiveDaysWeatherLiveDataResponse();
-        FiveDaysWeatherObserver fiveDaysWeatherObserver = new FiveDaysWeatherObserver();
-        fiveDaysWeatherLiveData.observe(this, fiveDaysWeatherObserver);
+        return binding.getRoot();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        swipeRefreshLayout.setRefreshing(true);
+        currentWeatherObserver = new CurrentWeatherObserver();
+        fiveDaysWeatherObserver = new FiveDaysWeatherObserver();
+        viewModel.getCurrentWeatherLiveDataResponse().observe(binding.getLifecycleOwner(), currentWeatherObserver);
+        viewModel.getFiveDaysWeatherLiveDataResponse().observe(binding.getLifecycleOwner(), fiveDaysWeatherObserver);
         Place place = viewModel.getSavedPlace();
         if (TextUtils.isEmpty(place.getName())) {
-            Location location = locationService.getLocation();
-            if (location == null) {
-                showToast("Can`t get location");
-            } else {
-                place = Place.builder().setLatLng(new LatLng(location.getLatitude(), location.getLongitude())).build();
-                placePreferences.savePlace(place);
-                swipeRefreshLayout.setRefreshing(true);
-
-            }
+            viewModel.onClickGeo(binding.getRoot());
         }
-
     }
 
-    private void bindAllViews(View view) {
-        swipeRefreshLayout = view.findViewById(R.id.swipe);
-        imageViewCurrentTemp = view.findViewById(R.id.imageViewCurrent);
-        textViewCity = view.findViewById(R.id.textViewCurrentCity);
-        textViewTemp = view.findViewById(R.id.textViewCurrentTemp);
-        textViewMinTemp = view.findViewById(R.id.textViewCurrentTempMin);
-        textViewPressure = view.findViewById(R.id.textViewPressure);
-        textViewWeatherDesc = view.findViewById(R.id.textViewWeatherDesc);
-        textViewWindSpeed = view.findViewById(R.id.textViewWindSpeed);
-        textViewHumidity = view.findViewById(R.id.textViewHumidity);
-        imageViewGetCurrentLocation = view.findViewById(R.id.imageViewGetLocation);
-        imageViewWind = view.findViewById(R.id.imageViewWind);
-        bg = view.findViewById(R.id.bgMain);
-        recyclerDays = view.findViewById(R.id.resyclerDays);
-        recyclerHours = view.findViewById(R.id.recyclerHours);
+    public void checkLocPermissions() {
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        }
     }
 
-    @Override
-    public void renderCurrentWeather(LiveData<CurrentWeather> weatherLive) {
-        CurrentWeather weather = weatherLive.getValue();
-        Date date = new Date();
-        date.setTime((long) weather.getDt() * 1000);
-        SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy EEE");
-        textViewCity.setText(formatForDateNow.format(date) + "\n" + weather.getCityName() + ", " + weather.getSys().getCountry());
-        textViewTemp.setText(String.valueOf(Math.round(weather.getMain().getTemp())) + " C");
-        textViewMinTemp.setText(Math.round(weather.getMain().getMinTemp()) + " C");
-        textViewPressure.setText(Math.round(weather.getMain().getPressure()) + " мм");
-        textViewWeatherDesc.setText(weather.getWeather().get(0).getDescription());
-        textViewWindSpeed.setText(weather.getWind().getSpeed() + " m/s");
-        textViewHumidity.setText(getString(R.string.humidity) + " " + String.valueOf(Math.round(weather.getMain().getHumidity())) + " %");
-        //imageViewCurrentTemp.setImageResource(Utils.convertIconSourceToId(weather.getWeather().get(0).getIcon()));
-        imageViewCurrentTemp.setImageResource(Utils.getStringIdentifier(getContext(), "i" + weather.getWeather().get(0).getIcon(), "drawable"));
-        imageViewWind.animate().rotation(weather.getWind().getDegree()).setDuration(1000).start();
-        bg.setBackgroundResource(BgColorSetter.set(weather.getMain().getMaxTemp()));
-    }
 
     @Override
     public void showProgress() {
@@ -232,12 +169,22 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
     class CurrentWeatherObserver implements Observer<CurrentWeather> {
 
         @Override
-        public void onChanged(CurrentWeather currentWeather) {
-            if (currentWeather != null) {
-                renderCurrentWeather(currentWeatherLiveData);
-                //          binding.textViewCurrentCity.setText(currentWeatherLiveData.getValue().getCityName());
+        public void onChanged(CurrentWeather weather) {
+            if (weather != null) {
+                Date date = new Date();
+                date.setTime((long) weather.getDt() * 1000);
+                SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy EEE");
+                binding.textViewCurrentCity.setText(formatForDateNow.format(date) + "\n" + weather.getCityName() + ", " + weather.getSys().getCountry());
+                binding.textViewCurrentTemp.setText(String.valueOf(Math.round(weather.getMain().getTemp())) + " C");
+                binding.textViewCurrentTempMin.setText(Math.round(weather.getMain().getMinTemp()) + " C");
+                binding.textViewPressure.setText(Math.round(weather.getMain().getPressure()) + " мм");
+                binding.textViewWeatherDesc.setText(weather.getWeather().get(0).getDescription());
+                binding.textViewWindSpeed.setText(weather.getWind().getSpeed() + " m/s");
+                binding.textViewHumidity.setText(getString(R.string.humidity) + " " + String.valueOf(Math.round(weather.getMain().getHumidity())) + " %");
+                binding.imageViewCurrent.setImageResource(Utils.getStringIdentifier(getContext(), "i" + weather.getWeather().get(0).getIcon(), "drawable"));
+                binding.imageViewWind.animate().rotation(weather.getWind().getDegree()).setDuration(1000).start();
+                binding.bgMain.setBackgroundResource(BgColorSetter.set(weather.getMain().getMaxTemp()));
                 swipeRefreshLayout.setRefreshing(false);
-
             }
         }
     }
@@ -246,10 +193,12 @@ public class WeatherFragment extends Fragment implements WeatherContract.Weather
 
         @Override
         public void onChanged(FiveDaysWeather fiveDaysWeather) {
-            List<Day> dayList = fiveDaysWeatherLiveData.getValue().getDays();
-
-            adapterHours.setData(dayList);
-            adapterDays.setData(dayList);
+            if (fiveDaysWeather != null) {
+                List<Day> dayList = fiveDaysWeather.getDays();
+                adapterHours.setData(dayList);
+                adapterDays.setData(dayList);
+                swipeRefreshLayout.setRefreshing(false);
+            }
         }
     }
 }

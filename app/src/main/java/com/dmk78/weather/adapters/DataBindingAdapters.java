@@ -8,9 +8,9 @@ import androidx.databinding.BindingAdapter;
 
 public class DataBindingAdapters {
 
-
+/*
     @BindingAdapter("app:srcCompat")
     public static void setImageResource(ImageView imageView, String resource){
         imageView.setImageResource(Integer.valueOf(resource));
-    }
+    }*/
 }

@@ -22,7 +22,7 @@ public interface WeatherContract {
         LiveData<FiveDaysWeather> getFiveDaysWeather(Place place);
     }
 
-    interface WeatherPresenter {
+    interface Model {
 
         void onGetWeatherByGeoClicked();
 
@@ -33,7 +33,7 @@ public interface WeatherContract {
     }
 
     interface WeatherView {
-        void renderCurrentWeather(LiveData<CurrentWeather> weatherLiveData);
+
 
         void showProgress();
 

@@ -124,11 +124,7 @@ public class NetworkService implements WeatherContract.ViewModel {
         return mRetrofit.create(JsonPlaceHolderApi.class);
     }
 
-    public interface WeatherCallback {
-        void getCurWeather(CurrentWeather currentWeather);
 
-        void getFiveDaysWeather(FiveDaysWeather fiveDaysWeather);
-    }
 
 
 }
