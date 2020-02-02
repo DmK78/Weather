@@ -17,6 +17,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+
+import javax.inject.Inject;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -26,10 +30,10 @@ import static android.content.Context.LOCATION_SERVICE;
  * @since 01.12.2019
  */
 
-public class MyLocationImpl implements LocationListener, MyLocation {
+public class MyLocationImpl implements LocationListener  {
     Context context;
     private Fragment fragment;
-    private Application application;
+    //private Application application;
     private final int REQUEST_LOCATION_PERMISSION = 1;
     boolean isGPSEnabled = false;
     // flag for network status
@@ -48,12 +52,16 @@ public class MyLocationImpl implements LocationListener, MyLocation {
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
-    public MyLocationImpl(Application application) {
-        this.context = application.getApplicationContext();
-        this.application = application;
+@Inject
+    public MyLocationImpl(Context context) {
+        this.context = context;
+        //this.application = application;
         //getLocation();
     }
 
+    public boolean isCanGetLocation() {
+        return canGetLocation;
+    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -69,7 +77,7 @@ public class MyLocationImpl implements LocationListener, MyLocation {
     }
 
 
-    @Override
+
     public Location getLocation() {
         //checkLocPermissions();
         try {
@@ -127,5 +135,6 @@ public class MyLocationImpl implements LocationListener, MyLocation {
         }
         return location;
     }
+
 
 }

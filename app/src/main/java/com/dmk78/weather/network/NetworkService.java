@@ -3,14 +3,12 @@ package com.dmk78.weather.network;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.dmk78.weather.BuildConfig;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.utils.Constants;
-import com.dmk78.weather.weather.WeatherContract;
 import com.google.android.libraries.places.api.model.Place;
 
 import okhttp3.OkHttpClient;
@@ -28,7 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * @version $Id$
  * @since 01.12.2019
  */
-public class NetworkService implements WeatherContract.ViewModel {
+public class NetworkService  {
     private Retrofit mRetrofit;
 
 
@@ -63,10 +61,9 @@ public class NetworkService implements WeatherContract.ViewModel {
     }
 
 
-    @Override
-    public LiveData<CurrentWeather> getCurWeather(Place place) {
 
-        final MutableLiveData<CurrentWeather> data = new MutableLiveData<>();
+    public void getCurWeather(Place place, MutableLiveData<CurrentWeather> callback) {
+
         getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude,
                 Constants.key, Constants.units, Constants.lang)
                 .enqueue(new Callback<CurrentWeather>() {
@@ -80,22 +77,20 @@ public class NetworkService implements WeatherContract.ViewModel {
                                 result.setCityName(place.getName());
                             }
                             result.setLatLng(place.getLatLng());
-                            data.setValue(result);
-                            getFiveDaysWeather(place);
+                            callback.postValue(result);
+//                            getFiveDaysWeather(place);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<CurrentWeather> call, Throwable t) {
-                        data.setValue(null);
+                        callback.setValue(null);
                     }
                 });
-        return data;
     }
 
-    public LiveData<FiveDaysWeather> getFiveDaysWeather(Place place) {
+    public void getFiveDaysWeather(Place place, MutableLiveData<FiveDaysWeather> callback) {
 
-        final MutableLiveData<FiveDaysWeather> data = new MutableLiveData<>();
         getJSONApi().getFiveDaysWeather(place.getLatLng().latitude, place.getLatLng().longitude,
                 Constants.key, Constants.units, Constants.lang)
                 .enqueue(new Callback<FiveDaysWeather>() {
@@ -106,17 +101,15 @@ public class NetworkService implements WeatherContract.ViewModel {
                         if (response.body() != null) {
                             FiveDaysWeather result = response.body();
                             result.calculateDateTime();
-                            data.setValue(result);
-
+                            callback.postValue(result);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<FiveDaysWeather> call, Throwable t) {
-                        data.setValue(null);
+                        callback.setValue(null);
                     }
                 });
-        return data;
     }
 
 

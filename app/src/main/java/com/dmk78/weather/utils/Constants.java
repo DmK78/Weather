@@ -12,4 +12,5 @@ public class Constants {
     public static String lang = "ru";
     public static String BASE_URL = "http://api.openweathermap.org/data/2.5/";
     public static String ERROR_LOG = "error_log";
+    public static final String MY_SETTINGS = "my_settings";
 }
