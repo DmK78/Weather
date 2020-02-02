@@ -67,7 +67,6 @@ public class WeatherFragment extends Fragment {
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setViewmodel(viewModel);
         setupAdapters();
-
         binding.swipe.setOnRefreshListener(() -> {
             updateUi(viewModel.getSavedPlace());
         });

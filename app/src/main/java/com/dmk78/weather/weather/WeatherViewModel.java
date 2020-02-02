@@ -61,41 +61,10 @@ public class WeatherViewModel extends AndroidViewModel {
         return fiveDaysWeatherLiveData;
     }
 
-
-    public LiveData<CurrentWeather> getCurWeather(Place place) {
-        return currentWeatherLiveData;
-    }
-
-
-    public LiveData<FiveDaysWeather> getFiveDaysWeather(Place place) {
-        return fiveDaysWeatherLiveData;
-    }
-
     public void updateWeather(Place place) {
         placePreferences.savePlace(place);
-
         networkService.getCurWeather(place, currentWeatherLiveData);
         networkService.getFiveDaysWeather(place, fiveDaysWeatherLiveData);
-
-
     }
-
-
-    class CurrentWeatherObserver implements Observer<CurrentWeather> {
-
-        @Override
-        public void onChanged(CurrentWeather currentWeather) {
-
-        }
-    }
-
-    class FiveDaysWeatherObserver implements Observer<FiveDaysWeather> {
-
-        @Override
-        public void onChanged(FiveDaysWeather fiveDaysWeather) {
-
-        }
-    }
-
 
 }

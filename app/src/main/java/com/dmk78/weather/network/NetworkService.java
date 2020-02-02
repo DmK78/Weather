@@ -78,7 +78,6 @@ public class NetworkService  {
                             }
                             result.setLatLng(place.getLatLng());
                             callback.postValue(result);
-//                            getFiveDaysWeather(place);
                         }
                     }
 
