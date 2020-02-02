@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData;
 import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.model.FiveDaysWeather;
 
+import io.reactivex.Single;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -27,6 +28,24 @@ public interface JsonPlaceHolderApi {
 
     @GET("weather")
     Call<CurrentWeather> getCurrentWeatherByCoord(
+            @Query("lat") double latittude,
+            @Query("lon") double longitude,
+            @Query("appid") String apiKey,
+            @Query("units") String units,
+            @Query("lang") String lang
+    );
+
+    @GET("weather")
+    Single<CurrentWeather> getCurrentWeatherByCoordRX(
+            @Query("lat") double latittude,
+            @Query("lon") double longitude,
+            @Query("appid") String apiKey,
+            @Query("units") String units,
+            @Query("lang") String lang
+    );
+
+    @GET("forecast")
+    Single<FiveDaysWeather> getFiveDaysWeatherRX(
             @Query("lat") double latittude,
             @Query("lon") double longitude,
             @Query("appid") String apiKey,

@@ -63,8 +63,10 @@ public class WeatherViewModel extends AndroidViewModel {
 
     public void updateWeather(Place place) {
         placePreferences.savePlace(place);
-        networkService.getCurWeather(place, currentWeatherLiveData);
-        networkService.getFiveDaysWeather(place, fiveDaysWeatherLiveData);
+        //networkService.getCurWeather(place, currentWeatherLiveData);
+        networkService.getCurWeatherRX(place, currentWeatherLiveData);
+        //networkService.getFiveDaysWeather(place, fiveDaysWeatherLiveData);
+        networkService.getFiveDaysWeatherRX(place, fiveDaysWeatherLiveData);
     }
 
 }

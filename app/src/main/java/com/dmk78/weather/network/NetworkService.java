@@ -11,6 +11,9 @@ import com.dmk78.weather.model.FiveDaysWeather;
 import com.dmk78.weather.utils.Constants;
 import com.google.android.libraries.places.api.model.Place;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -18,6 +21,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
@@ -26,7 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * @version $Id$
  * @since 01.12.2019
  */
-public class NetworkService  {
+public class NetworkService {
     private Retrofit mRetrofit;
 
 
@@ -55,11 +59,11 @@ public class NetworkService  {
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client.build())
                 .client(clientErrorIntercept)
                 .build();
     }
-
 
 
     public void getCurWeather(Place place, MutableLiveData<CurrentWeather> callback) {
@@ -111,12 +115,50 @@ public class NetworkService  {
                 });
     }
 
+    public void getCurWeatherRX(Place place, MutableLiveData<CurrentWeather> callback) {
+        getJSONApi().getCurrentWeatherByCoordRX(place.getLatLng().latitude, place.getLatLng().longitude,
+                Constants.key, Constants.units, Constants.lang)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableSingleObserver<CurrentWeather>() {
+                    @Override
+                    public void onSuccess(CurrentWeather currentWeather) {
+                            if (!TextUtils.isEmpty(place.getName())) {
+                                currentWeather.setCityName(place.getName());
+                            }
+                            currentWeather.setLatLng(place.getLatLng());
+                            callback.postValue(currentWeather);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+                });
+    }
+
+    public void getFiveDaysWeatherRX (Place place, MutableLiveData<FiveDaysWeather> callback) {
+
+        getJSONApi().getFiveDaysWeatherRX(place.getLatLng().latitude, place.getLatLng().longitude,
+                Constants.key, Constants.units, Constants.lang)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableSingleObserver<FiveDaysWeather>() {
+                    @Override
+                    public void onSuccess(FiveDaysWeather fiveDaysWeather) {
+                        fiveDaysWeather.calculateDateTime();
+                        callback.postValue(fiveDaysWeather);
+                    }
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
+    }
+
 
     public JsonPlaceHolderApi getJSONApi() {
         return mRetrofit.create(JsonPlaceHolderApi.class);
     }
-
-
 
 
 }
