@@ -31,16 +31,16 @@ RX Java
 Dagger
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/DmK78/weather/tree/master/images/image1.JPG">
+  <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/1.JPEG">
   </p>
   <p align="center">
-    <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/image4.JPG">
+    <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/2.JPEG">
     </p>
     <p align="center">
-      <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/image2.JPG">
+      <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/3.JPEG">
       </p>
       <p align="center">
-        <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/image3.JPG">
+        <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/4.JPEG">
         </p>
 
 
