@@ -9,10 +9,7 @@
 В этом проекте используется:
 
 
-Retrofit
-Google Places
-RX Java
-Dagger
+Retrofit, Google Places, RX Java, Dagger
 
 # About
 Weather forecast app.
@@ -25,13 +22,10 @@ You can also search for places on Google Places. There is also a modest widget.
 This project uses:
 
 
-Retrofit
-Google places
-RX Java
-Dagger
+Retrofit, Google places, RX Java, Dagger
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/1.JPEG">
+  <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/1.JPG">
   </p>
   <p align="center">
     <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/2.JPEG">
