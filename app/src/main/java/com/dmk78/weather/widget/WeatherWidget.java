@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -20,6 +21,9 @@ import com.dmk78.weather.model.CurrentWeather;
 import com.dmk78.weather.network.NetworkService;
 import com.google.android.libraries.places.api.model.Place;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,7 +34,7 @@ import retrofit2.Response;
  * @since 01.12.2019
  */
 
-public class WeatherWidget extends AppWidgetProvider  {
+public class WeatherWidget extends AppWidgetProvider {
     private static final String SYNC_CLICKED = "weather_widget_update_action";
 
 
@@ -44,19 +48,19 @@ public class WeatherWidget extends AppWidgetProvider  {
         appWidgetManager.updateAppWidget(appWidgetId, views);
         PlacePreferencesImpl placePreferences = new PlacePreferencesImpl(context);
         Place place = placePreferences.loadPlace();
-        String currentCity = place.getName();
         Log.i("city", String.valueOf(place.getName()));
         Log.i("city", String.valueOf(place.getLatLng().latitude));
         Log.i("city", String.valueOf(place.getLatLng().longitude));
-        double lat = placePreferences.loadPlace().getLatLng().latitude;
-        double lng = placePreferences.loadPlace().getLatLng().longitude;
         NetworkService networkService = new NetworkService();
-        /*networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
+        networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                 if (response.isSuccessful()) {
                     CurrentWeather currentWeather = response.body();
-                    views.setTextViewText(R.id.tvWidgetCity, currentCity);
+                    Log.i("city", currentWeather.getCityName());
+                    Log.i("city", currentWeather.getWeather().get(0).getDescription());
+                    Log.i("city", Math.round(currentWeather.getMain().getTemp()) + " C");
+                    views.setTextViewText(R.id.tvWidgetCity, place.getName());
                     views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp()) + " C");
                     views.setImageViewResource(R.id.ivWidgetWeather, Utils.getStringIdentifier(context, "i" + currentWeather.getWeather().get(0).getIcon(), "drawable"));
                     //holder.imageViewDayWeather.setImageResource(Utils.getStringIdentifier(context, "i" + day.getWeather().get(0).getIcon(), "drawable"));
@@ -70,7 +74,7 @@ public class WeatherWidget extends AppWidgetProvider  {
             @Override
             public void onFailure(Call<CurrentWeather> call, Throwable t) {
             }
-        });*/
+        });
     }
 
     @Override
@@ -125,16 +129,16 @@ public class WeatherWidget extends AppWidgetProvider  {
             //updating widget
             appWidgetManager.updateAppWidget(watchWidget, views);
             PlacePreferences placePreferences = new PlacePreferencesImpl(context);
-            String currentCity = placePreferences.loadPlace().getName();
-            double lat = placePreferences.loadPlace().getLatLng().latitude;
-            double lng = placePreferences.loadPlace().getLatLng().longitude;
+            Place place = placePreferences.loadPlace();
             NetworkService networkService = new NetworkService();
-            /*networkService.getJSONApi().getCurrentWeatherByCoord(lat, lng, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
+
+
+            networkService.getJSONApi().getCurrentWeatherByCoord(place.getLatLng().latitude, place.getLatLng().longitude, Constants.key, Constants.units, Constants.lang).enqueue(new Callback<CurrentWeather>() {
                 @Override
                 public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
                     if (response.isSuccessful()) {
                         CurrentWeather currentWeather = response.body();
-                        views.setTextViewText(R.id.tvWidgetCity, currentCity);
+                        views.setTextViewText(R.id.tvWidgetCity, place.getName());
                         views.setTextViewText(R.id.tvWidgetTemp, Math.round(currentWeather.getMain().getTemp()) + " C");
                         //views.setImageViewResource(R.id.ivWidgetWeather, Utils.convertIconSourceToId(currentWeather.getWeather().get(0).getIcon()));
                         views.setImageViewResource(R.id.ivWidgetWeather, Utils.getStringIdentifier(context, "i" + currentWeather.getWeather().get(0).getIcon(), "drawable"));
@@ -149,10 +153,9 @@ public class WeatherWidget extends AppWidgetProvider  {
                 @Override
                 public void onFailure(Call<CurrentWeather> call, Throwable t) {
                 }
-            });*/
+            });
         }
     }
-
 
 
 }
