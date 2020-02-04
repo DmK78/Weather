@@ -25,8 +25,13 @@ This project uses:
 Retrofit, Google places, RX Java, Dagger
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/1.JPG">
+  <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/1.JPEG">
   </p>
+
+  <p align="center">
+    <img src="https://github.com/DmK78/Weather/blob/master/images/1.jpg">
+    </p>
+
   <p align="center">
     <img src="https://raw.githubusercontent.com/DmK78/weather/master/images/2.JPEG">
     </p>
